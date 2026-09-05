@@ -83,10 +83,15 @@ class Report:
         return path
 
 
-def fail(message: str, filename: str = "error.md") -> None:
+def fail(message: str, filename: str = "error.md", json_name: str | None = None) -> None:
     """
     Print a friendly failure report and exit with a non-zero status so
     GitHub Actions marks the run as failed (and emails you about it).
+
+    If json_name is given, the failure is also recorded as JSON for the
+    dashboard. That is deliberate: the dashboard shows the error on the
+    relevant tab instead of continuing to display the previous run's data as
+    though it were current. Silently stale data is the worse failure.
     """
     report = Report("Something went wrong")
     report.warning("This run did not complete. Details below.")
@@ -94,4 +99,9 @@ def fail(message: str, filename: str = "error.md") -> None:
     report.text(message)
     report.text("```")
     report.deliver(filename)
+
+    if json_name:
+        from .export import write_error
+        write_error(json_name, message)
+
     raise SystemExit(1)

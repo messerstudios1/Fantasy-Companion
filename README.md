@@ -13,13 +13,14 @@ open a terminal or install anything on your computer.
 
 1. [Before anything else: the one time setup](#before-anything-else-the-one-time-setup)
 2. [Getting your ESPN cookies](#getting-your-espn-cookies)
-3. [The tools](#the-tools)
-4. [Draft day playbook](#draft-day-playbook)
-5. [When your cookies expire](#when-your-cookies-expire)
-6. [Asking Claude to run things](#asking-claude-to-run-things)
-7. [Football terms used in the reports](#football-terms-used-in-the-reports)
-8. [How the code is organized](#how-the-code-is-organized)
-9. [Appendix: running on your own computer instead](#appendix-running-on-your-own-computer-instead)
+3. [The dashboard](#the-dashboard)
+4. [The tools](#the-tools)
+5. [Draft day playbook](#draft-day-playbook)
+6. [When your cookies expire](#when-your-cookies-expire)
+7. [Asking Claude to run things](#asking-claude-to-run-things)
+8. [Football terms used in the reports](#football-terms-used-in-the-reports)
+9. [How the code is organized](#how-the-code-is-organized)
+10. [Appendix: running on your own computer instead](#appendix-running-on-your-own-computer-instead)
 
 ---
 
@@ -125,6 +126,76 @@ Safari hides developer tools until you turn them on:
 Cookies live in exactly two places: GitHub's encrypted Secrets (for workflow
 runs) and an optional local `.env` file, which `.gitignore` blocks from ever
 being committed. No credential is written into a source file.
+
+---
+
+## The dashboard
+
+All four tools feed one web page, built for reading on a phone. Draft board,
+lineup optimizer and waiver scanner live behind three tabs, in dark or light
+depending on your device setting.
+
+**Your dashboard URL, once Pages is switched on:**
+
+```
+https://messerstudios1.github.io/Fantasy-Companion/
+```
+
+Add it to your phone's home screen and it behaves like an app.
+
+### Turning it on (one time, in a browser)
+
+GitHub Pages does not publish from a private repository on a free account, so
+this step makes the repository public.
+
+**What becomes visible:** the code, and your league data (team names, rosters,
+recommendations). **What stays private:** your ESPN cookies. Those live in
+encrypted Secrets, which stay secret on a public repository, and they were
+never committed to a file. Nobody can access your ESPN account from anything
+that becomes public here.
+
+If that trade is not worth it to you, skip this section. Every tool still works
+and still reports through the Actions tab and the weekly email; you just do not
+get the dashboard.
+
+1. Repository **Settings** > scroll to the bottom > **Danger Zone** >
+   **Change repository visibility** > **Change to public**. Confirm.
+2. Repository **Settings** > **Pages** (left sidebar).
+3. Under **Build and deployment**, set **Source** to *Deploy from a branch*.
+4. Set **Branch** to `main` and the folder to `/docs`. Click **Save**.
+5. Wait a minute or two, then open the URL above.
+
+### How it stays current
+
+Each tool writes a JSON file into `docs/data/`, and the workflow commits it
+back to the repository. The dashboard reads those files through GitHub's API,
+which returns the newest version the moment a workflow commits it. That skips
+the 30 to 60 seconds Pages takes to rebuild, so a refresh is about 45 seconds
+end to end rather than a minute and a half.
+
+The page tells you how old its data is, and shows a warning during a draft if
+the board is more than 8 minutes stale. A quietly outdated board is worse than
+no board.
+
+### Auto-refresh on draft night
+
+Workflow **"5. Live draft auto-refresh"** re-runs the draft board every 5
+minutes so the dashboard updates without you tapping anything. It is gated
+behind a switch so it does nothing the rest of the year.
+
+**Switch it on before your draft:**
+
+1. Repository **Settings** > **Secrets and variables** > **Actions**.
+2. Click the **Variables** tab (not Secrets).
+3. **New repository variable**. Name `DRAFT_MODE`, value `on`. Save.
+
+**Switch it off after your draft** by editing that value to anything else, or
+deleting it. Left on, it would add commits to your history all season.
+
+Honest caveat: GitHub throttles 5 minute schedules harder than any other
+interval and delays them when busy. Expect a refresh every 5 to 15 minutes in
+practice. Treat it as a background top-up and still trigger a manual run when
+you want the board current for your own pick.
 
 ---
 
@@ -283,13 +354,16 @@ It runs automatically on every push.
 2. **An hour before**, run **"2. Draft Board"** once. This warms the rankings
    cache, so if the rankings site goes down mid-draft you still have real data
    to fall back on.
-3. **During the draft**, keep two browser tabs open on the Actions page. Read
-   the board in one while the next refresh builds in the other, so you always
-   have a list on screen. Each refresh takes about 40 seconds.
-4. **Sanity check every refresh** by glancing at the "Last 10 picks" table at
+3. **Turn on `DRAFT_MODE`** (see [Auto-refresh on draft night](#auto-refresh-on-draft-night))
+   so the board updates itself in the background.
+4. **During the draft**, keep the dashboard open on your phone and pull to
+   refresh. If you want the board current for your own pick rather than
+   whenever the schedule fires, trigger **"2. Draft Board"** from the Actions
+   tab and reload about 45 seconds later.
+5. **Sanity check every refresh** by glancing at the "Last 10 picks" table at
    the bottom. If it shows picks you just watched happen, the board is live.
    If it looks frozen, ESPN's draft feed is lagging.
-5. **Read "Positional urgency" before every pick.** That is the section that
+6. **Read "Positional urgency" before every pick.** That is the section that
    actually changes decisions. "Only 1 left in this tier" means take him now.
    "6 left, no rush" means take a different position and come back.
 
@@ -329,6 +403,7 @@ You do not have to remember any of this. In Claude Code you can say:
 | "Run the weekly check" | Triggers the lineup optimizer and waiver scan, then summarizes both |
 | "My cookies expired, walk me through it" | Step by step cookie refresh instructions |
 | "Why is it recommending this player?" | Explanation of the reasoning behind any recommendation |
+| "Turn on draft mode" | Sets the DRAFT_MODE variable so the board auto-refreshes |
 
 Claude cannot reach ESPN directly from its own session, because the sandbox it
 runs in blocks `espn.com` at the network level. So it triggers the GitHub
@@ -371,6 +446,7 @@ fantasy/
   lineup.py        The lineup optimization algorithm, and why it is optimal.
   waivers.py       Free agent scoring, and the football reasoning behind it.
   output.py        Formats reports for console, file, and the GitHub summary page.
+  export.py        Writes the JSON files the dashboard reads.
 
 scripts/
   test_connection.py    Phase 1: prove the connection works.
@@ -389,6 +465,13 @@ tests/
   draft-board.yml       "2. Draft Board"
   weekly-check.yml      "3. Weekly Check", scheduled Sun + Tue
   tests.yml             "4. Run offline tests", runs on every push
+  draft-live.yml        "5. Live draft auto-refresh", gated behind DRAFT_MODE
+
+docs/
+  index.html            The dashboard. Plain HTML, CSS and JavaScript, no build
+                        step and no framework, so it cannot rot.
+  data/*.json           Written by each tool, committed by the workflow, read
+                        by the dashboard.
 
 data/
   rankings_cache.json   Last successful rankings download. Auto-managed.

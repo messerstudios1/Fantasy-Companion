@@ -55,6 +55,7 @@ from fantasy.espn_client import (
     find_my_team,
 )
 from fantasy.names import normalize
+from fantasy.export import write_json
 from fantasy.output import Report, fail
 from fantasy.rankings import fetch_rankings
 
@@ -225,13 +226,13 @@ def main() -> None:
     try:
         config = load_config()
     except ConfigError as exc:
-        fail(str(exc), "draft-board.md")
+        fail(str(exc), "draft-board.md", json_name="draft")
         return
 
     try:
         league = connect(config)
     except (AuthError, LeagueNotFoundError) as exc:
-        fail(str(exc), "draft-board.md")
+        fail(str(exc), "draft-board.md", json_name="draft")
         return
 
     # Always re-pull the draft log so a refresh mid-draft sees the newest picks.
@@ -243,7 +244,7 @@ def main() -> None:
     try:
         my_team = find_my_team(league, config)
     except LeagueNotFoundError as exc:
-        fail(str(exc), "draft-board.md")
+        fail(str(exc), "draft-board.md", json_name="draft")
         return
 
     scoring = describe_scoring(league)
@@ -404,6 +405,67 @@ def main() -> None:
                 for p in recent
             ],
         )
+
+    # --- Emit the same data as JSON for the web dashboard ----------------
+    def json_player(ranked):
+        espn_player = espn_index.get(ranked.key)
+        injury = ""
+        projection = None
+        if espn_player is not None:
+            status = (espn_player.injuryStatus or "").upper()
+            if status and status not in ("ACTIVE", "NORMAL"):
+                injury = status.title()
+            projection = round(espn_player.projected_total_points or 0, 1)
+        return {
+            "rank": int(ranked.overall_rank),
+            "name": ranked.name,
+            "position": canonical_position(ranked.position),
+            "team": ranked.team or "",
+            "position_rank": ranked.position_rank or "",
+            "tier": ranked.tier or 0,
+            "bye_week": ranked.bye_week or 0,
+            "espn_projection": projection,
+            "injury": injury,
+        }
+
+    write_json("draft", {
+        "ok": True,
+        "league_name": league.settings.name,
+        "team_name": my_team.team_name,
+        "scoring": scoring["label"],
+        "rankings_source": rankings.source,
+        "rankings_fresh": rankings.is_fresh,
+        "rankings_available": bool(rankings.players),
+        "draft_state": position_info,
+        "my_roster": [
+            {
+                "name": p.name,
+                "position": canonical_position(p.position),
+                "team": p.proTeam,
+            }
+            for p in (my_team.roster or [])
+        ],
+        "needs": needs,
+        "positional_urgency": [
+            {
+                "position": pos,
+                "summary": tier_summary(available, pos).replace("**", ""),
+                "count": len([p for p in available if canonical_position(p.position) == pos]),
+            }
+            for pos in POSITIONS
+        ],
+        "available": [json_player(p) for p in available[:150]],
+        "recent_picks": [
+            {
+                "round": getattr(p, "round_num", None),
+                "pick": getattr(p, "round_pick", None),
+                "player": getattr(p, "playerName", ""),
+                "team": getattr(getattr(p, "team", None), "team_name", ""),
+                "is_mine": getattr(getattr(p, "team", None), "team_id", None) == my_team.team_id,
+            }
+            for p in picks[-15:]
+        ],
+    })
 
     path = report.deliver("draft-board.md")
     print(f"\nSaved to {path}")
