@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Fantasy Companion — Brand</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20width%3D%2232%22%20height%3D%2232%22%20role%3D%22img%22%20aria-label%3D%22Fantasy%20Companion%22%3E%20%3Cg%20transform%3D%22rotate%28-8%2016%2016%29%22%3E%20%3Crect%20x%3D%224%22%20y%3D%226.6%22%20width%3D%2224%22%20height%3D%225.2%22%20rx%3D%222.6%22%20fill%3D%22%23FF5A36%22%2F%3E%20%3Crect%20x%3D%224%22%20y%3D%2214.4%22%20width%3D%2217%22%20height%3D%225.2%22%20rx%3D%222.6%22%20fill%3D%22%23E9EEF2%22%20opacity%3D%22.82%22%2F%3E%20%3Crect%20x%3D%224%22%20y%3D%2222.2%22%20width%3D%2210%22%20height%3D%225.2%22%20rx%3D%222.6%22%20fill%3D%22%23E9EEF2%22%20opacity%3D%22.42%22%2F%3E%20%3C%2Fg%3E%20%3C%2Fsvg%3E">
+<link rel="stylesheet" href="brand/tokens.css">
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; overflow-x: hidden; background: var(--ink); color: var(--text);
+  font: 15px/1.6 var(--font); font-variant-numeric: tabular-nums;
+}
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* --- Hero ------------------------------------------------------------- */
+.hero { padding: 72px 0 40px; border-bottom: 1px solid var(--line); }
+.hero .big { margin: 0 0 44px; }
+.hero h1 { margin: 0 0 6px; font-size: 30px; font-weight: 700; letter-spacing: -.03em; }
+.hero p { margin: 0; max-width: 46ch; color: var(--muted); font-size: 16px; }
+
+/* --- Sections --------------------------------------------------------- */
+section { padding: 44px 0; border-bottom: 1px solid var(--line); }
+h2 {
+  margin: 0 0 6px; font-size: 11px; font-weight: 650; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; gap: 10px;
+}
+h3 { margin: 30px 0 8px; font-size: 17px; font-weight: 650; letter-spacing: -.01em; }
+p { max-width: 62ch; }
+.lede { font-size: 17px; margin: 0 0 4px; max-width: 54ch; letter-spacing: -.01em; }
+.muted { color: var(--muted); }
+code {
+  font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: var(--surface-2); padding: 1px 5px; border-radius: 4px;
+}
+
+/* --- Rule card -------------------------------------------------------- */
+.rule {
+  border-left: 3px solid var(--signal); padding: 4px 0 4px 16px; margin: 22px 0;
+}
+.rule b { display: block; font-size: 16px; margin-bottom: 3px; letter-spacing: -.01em; }
+
+/* --- Grids ------------------------------------------------------------ */
+.grid { display: grid; gap: 12px; margin-top: 18px; }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.g3 { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.g6 { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); }
+
+.panel {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 18px;
+}
+
+/* --- Swatches --------------------------------------------------------- */
+.sw { border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--line); }
+.sw .chip { height: 72px; }
+.sw .info { padding: 9px 11px; background: var(--surface); }
+.sw .nm { font-size: 13px; font-weight: 600; }
+.sw .hx {
+  font: 11.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--muted); margin-top: 1px; text-transform: uppercase;
+}
+
+/* --- Do / Don't ------------------------------------------------------- */
+.dd { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 12px; margin-top: 16px; }
+.dd .box { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+.dd .art {
+  height: 96px; display: grid; place-items: center; background: var(--surface);
+}
+.dd .cap { padding: 8px 11px; font-size: 12.5px; border-top: 1px solid var(--line); }
+.dd .yes .cap { color: var(--good); }
+.dd .no  .cap { color: var(--bad); }
+
+/* --- Type scale ------------------------------------------------------- */
+.type-row {
+  display: flex; align-items: baseline; gap: 16px; padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+.type-row:last-child { border-bottom: 0; }
+.type-row .spec {
+  flex: none; width: 128px;
+  font: 11.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--faint);
+}
+
+/* --- Live component samples ------------------------------------------ */
+.pos {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 34px; height: 20px; padding: 0 6px; border-radius: 5px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .05em; color: #0B0D10;
+}
+.pos.QB{background:var(--qb)} .pos.RB{background:var(--rb)} .pos.WR{background:var(--wr)}
+.pos.TE{background:var(--te)} .pos.K{background:var(--k)}  .pos.DST{background:var(--dst)}
+@media (prefers-color-scheme: light) { .pos { color: #fff; } }
+
+.stat { background: var(--surface-2); border-radius: var(--radius-sm); padding: 10px 12px; }
+.stat .k { font-size: 11px; color: var(--muted); }
+.stat .v { font-size: 21px; font-weight: 640; letter-spacing: -.02em; margin-top: 2px; }
+.stat.act { background: var(--signal-dim); }
+.stat.act .v { color: var(--signal); }
+
+.prow { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.prow:last-child { border-bottom: 0; }
+.prow .rk { width: 26px; text-align: right; font-size: 13px; font-weight: 620; color: var(--faint); }
+.prow .nm { flex: 1; font-size: 15px; font-weight: 560; }
+.prow .mt { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.prow .rt { font-size: 15px; font-weight: 620; }
+
+.tier {
+  display: flex; align-items: center; gap: 10px; margin: 16px 0 2px;
+  font-size: 11px; font-weight: 650; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--faint);
+}
+.tier::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+.assets a {
+  display: flex; align-items: center; gap: 12px; padding: 13px 14px;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  color: var(--text); text-decoration: none; background: var(--surface);
+}
+.assets a:hover { border-color: var(--signal); }
+.assets .fn { flex: 1; font-size: 14px; font-weight: 560; }
+.assets .ds { font-size: 12px; color: var(--muted); }
+
+footer { padding: 40px 0 0; color: var(--faint); font-size: 12.5px; }
+footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="big">
+      <span class="fc-lockup fc-lockup--lg">
+        <svg class="fc-mark" width="62" height="62" viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-8 16 16)"><rect x="4" y="6.6" width="24" height="5.2" rx="2.6" fill="#FF5A36"/><rect x="4" y="14.4" width="17" height="5.2" rx="2.6" fill="currentColor" opacity=".82"/><rect x="4" y="22.2" width="10" height="5.2" rx="2.6" fill="currentColor" opacity=".42"/></g></svg>
+        <span class="fc-word"><span class="kicker">Fantasy</span><span class="name">Companion</span></span>
+      </span>
+    </div>
+    <h1>Brand pack</h1>
+    <p>A small, opinionated system for a tool whose entire job is to rank a list
+       and tell you when to act on it.</p>
+  </header>
+
+  <section>
+    <h2><span class="fc-tick"></span> The idea</h2>
+    <p class="lede">It is a companion, not the game.</p>
+    <p class="muted">You read it on a phone, in the dark, for four seconds, then look
+      away and do something in another app. Everything here serves that: high contrast,
+      one accent that means one thing, and numbers set to be read at a glance rather
+      than studied.</p>
+    <p class="muted">The mark is a ranked stack, not a football. A football would say
+      "sports", which you already know. A descending stack says <em>tiers</em>, which is
+      the one idea the product is actually built on: things are grouped by quality, and
+      the moment a group runs out is the moment you act.</p>
+  </section>
+
+  <section>
+    <h2><span class="fc-tick"></span> The bold choice — the lean</h2>
+    <p class="lede">Everything structural leans 8°. Nothing informational ever does.</p>
+    <p class="muted">Fantasy sports interfaces are relentlessly upright. An 8° lean across
+      the furniture reads as motion and gives the product a silhouette you can recognise
+      from across a room. It is also load-bearing rather than decorative: the lean is how
+      you tell chrome from content without reading either.</p>
+
+    <div class="rule">
+      <b>The rule</b>
+      <span class="muted">The logo leans. Tier ticks lean. Decorative marks lean.
+      Player names, projections, ranks, tables, and any number you might act on stay
+      dead level. If a user could misread it because it is tilted, it does not tilt.</span>
+    </div>
+
+    <div class="dd">
+      <div class="box yes">
+        <div class="art">
+          <span class="fc-lockup" style="transform:rotate(-8deg) scale(1.15)">
+            <svg class="fc-mark" width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-8 16 16)"><rect x="4" y="6.6" width="24" height="5.2" rx="2.6" fill="#FF5A36"/><rect x="4" y="14.4" width="17" height="5.2" rx="2.6" fill="currentColor" opacity=".82"/><rect x="4" y="22.2" width="10" height="5.2" rx="2.6" fill="currentColor" opacity=".42"/></g></svg>
+            <span class="fc-word"><span class="kicker">Fantasy</span><span class="name">Companion</span></span>
+          </span>
+        </div>
+        <div class="cap">Lockup leans as one unit</div>
+      </div>
+      <div class="box no">
+        <div class="art">
+          <span class="fc-lockup" style="transform:none">
+            <span style="transform:rotate(-8deg);display:inline-flex"><svg class="fc-mark" width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-8 16 16)"><rect x="4" y="6.6" width="24" height="5.2" rx="2.6" fill="#FF5A36"/><rect x="4" y="14.4" width="17" height="5.2" rx="2.6" fill="currentColor" opacity=".82"/><rect x="4" y="22.2" width="10" height="5.2" rx="2.6" fill="currentColor" opacity=".42"/></g></svg></span>
+            <span class="fc-word"><span class="kicker">Fantasy</span><span class="name">Companion</span></span>
+          </span>
+        </div>
+        <div class="cap">Never lean one half only</div>
+      </div>
+      <div class="box yes">
+        <div class="art">
+          <div style="width:170px">
+            <div class="tier"><span class="fc-tick"></span> Tier 2</div>
+            <div class="prow"><span class="rk">14</span><span class="nm">Level type</span></div>
+          </div>
+        </div>
+        <div class="cap">Tick leans, the data does not</div>
+      </div>
+      <div class="box no">
+        <div class="art">
+          <div style="width:170px;transform:rotate(-8deg)">
+            <div class="prow"><span class="rk">14</span><span class="nm">Tilted data</span><span class="rt">18.2</span></div>
+          </div>
+        </div>
+        <div class="cap">Never lean a number</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="fc-tick"></span> The mark</h2>
+    <p class="muted">Three bars, descending, on an 8° lean. Tier one is widest and carries
+      Signal; the tiers below fall away in width and weight. It survives to 16px because
+      there are only three shapes in it.</p>
+
+    <div class="grid g3">
+      <div class="panel" style="display:grid;place-items:center;gap:12px">
+        <svg width="64" height="64" viewBox="0 0 32 32" style="color:var(--text)"><g transform="rotate(-8 16 16)"><rect x="4" y="6.6" width="24" height="5.2" rx="2.6" fill="#FF5A36"/><rect x="4" y="14.4" width="17" height="5.2" rx="2.6" fill="currentColor" opacity=".82"/><rect x="4" y="22.2" width="10" height="5.2" rx="2.6" fill="currentColor" opacity=".42"/></g></svg>
+        <span class="ds muted" style="font-size:12px">64px</span>
+      </div>
+      <div class="panel" style="display:grid;place-items:center;gap:12px">
+        <svg width="32" height="32" viewBox="0 0 32 32" style="color:var(--text)"><g transform="rotate(-8 16 16)"><rect x="4" y="6.6" width="24" height="5.2" rx="2.6" fill="#FF5A36"/><rect x="4" y="14.4" width="17" height="5.2" rx="2.6" fill="currentColor" opacity=".82"/><rect x="4" y="22.2" width="10" height="5.2" rx="2.6" fill="currentColor" opacity=".42"/></g></svg>
+        <span class="ds muted" style="font-size:12px">32px</span>
+      </div>
+      <div class="panel" style="display:grid;place-items:center;gap:12px">
+        <svg width="16" height="16" viewBox="0 0 32 32" style="color:var(--text)"><g transform="rotate(-8 16 16)"><rect x="4" y="6.6" width="24" height="5.2" rx="2.6" fill="#FF5A36"/><rect x="4" y="14.4" width="17" height="5.2" rx="2.6" fill="currentColor" opacity=".82"/><rect x="4" y="22.2" width="10" height="5.2" rx="2.6" fill="currentColor" opacity=".42"/></g></svg>
+        <span class="ds muted" style="font-size:12px">16px, the floor</span>
+      </div>
+    </div>
+
+    <h3>Clear space</h3>
+    <p class="muted">Keep one bar-height clear on every side. That is 5.2 units on the
+      32-unit grid, so roughly 16% of the mark's width. Nothing crops into it.</p>
+
+    <h3>Don't</h3>
+    <p class="muted">Don't recolour the bars to a position colour, don't add a football,
+      don't set the lean to anything but 8°, don't outline it, and don't stack the wordmark
+      above the mark. There is one lockup and one mark.</p>
+  </section>
+
+  <section>
+    <h2><span class="fc-tick"></span> Signal</h2>
+    <p class="lede">One accent. It means "act now", and nothing else.</p>
+    <p class="muted">Signal is not a brand colour you sprinkle on things you like. It marks
+      the moment the product exists for: you are on the clock, this lineup is costing you
+      points, this tier is about to empty. If Signal is on screen, there is something to do.
+      Used everywhere, it would mean nothing, which is how most accent colours end up.</p>
+    <p class="muted">The single exception is the logo, which is the product's own signature
+      rather than a piece of advice.</p>
+
+    <div class="grid g2">
+      <div class="sw"><div class="chip" style="background:var(--signal)"></div>
+        <div class="info"><div class="nm">Signal</div><div class="hx" id="hxSignal">#FF5A36</div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--signal-dim)"></div>
+        <div class="info"><div class="nm">Signal, dimmed</div><div class="hx" id="hxSignalDim">#3A1A12</div>
+        <div class="hx" style="text-transform:none">Tile backgrounds only</div></div></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:14px">
+      <div class="panel"><div class="stat act"><div class="k">Until your pick</div>
+        <div class="v">You're up</div></div>
+        <p class="muted" style="font-size:12.5px;margin:10px 0 0">Correct. Something to do.</p></div>
+      <div class="panel"><div class="stat"><div class="k">Picks made</div>
+        <div class="v">22</div></div>
+        <p class="muted" style="font-size:12.5px;margin:10px 0 0">Correct. Nothing to do, so no Signal.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="fc-tick"></span> Ink &amp; paper</h2>
+    <p class="muted">Near-black rather than pure black: on an OLED phone in a dark room, pure
+      black stops reading as a surface and starts reading as a hole. Both themes are first
+      class, chosen by the device, with no toggle to think about.</p>
+    <div class="grid g6">
+      <div class="sw"><div class="chip" style="background:var(--ink)"></div><div class="info"><div class="nm">Ink</div><div class="hx" id="hxInk"></div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--surface)"></div><div class="info"><div class="nm">Surface</div><div class="hx" id="hxSurface"></div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--surface-2)"></div><div class="info"><div class="nm">Raised</div><div class="hx" id="hxSurface2"></div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--line)"></div><div class="info"><div class="nm">Line</div><div class="hx" id="hxLine"></div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--text)"></div><div class="info"><div class="nm">Text</div><div class="hx" id="hxText"></div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--muted)"></div><div class="info"><div class="nm">Muted</div><div class="hx" id="hxMuted"></div></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="fc-tick"></span> The depth chart</h2>
+    <p class="muted">Position colours are fixed and never reassigned, so they become
+      readable without the label after a week of use. They are the only chroma in the
+      system besides Signal, and they never carry meaning beyond "this is that position".</p>
+    <div class="grid g6">
+      <div class="sw"><div class="chip" style="background:var(--qb)"></div><div class="info"><div class="nm">QB</div><div class="hx" id="hxQb"></div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--rb)"></div><div class="info"><div class="nm">RB</div><div class="hx" id="hxRb"></div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--wr)"></div><div class="info"><div class="nm">WR</div><div class="hx" id="hxWr"></div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--te)"></div><div class="info"><div class="nm">TE</div><div class="hx" id="hxTe"></div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--k)"></div><div class="info"><div class="nm">K</div><div class="hx" id="hxK"></div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--dst)"></div><div class="info"><div class="nm">D/ST</div><div class="hx" id="hxDst"></div></div></div>
+    </div>
+    <p class="muted" style="margin-top:14px;font-size:13px">Note the slash in D/ST. It cannot
+      go in a CSS class name, so strip to <code>DST</code> for the class and keep the slash
+      in the label. This shipped broken once.</p>
+  </section>
+
+  <section>
+    <h2><span class="fc-tick"></span> Type</h2>
+    <p class="muted">The system stack, deliberately. No webfont means nothing to load, nothing
+      to license, nothing to break offline, and text that already looks native on the device
+      it is being read on. The personality lives in the lean and in Signal, not in a typeface.</p>
+
+    <div class="panel" style="margin-top:18px">
+      <div class="type-row"><span class="spec">30 / 700 / -.03em</span><span style="font-size:30px;font-weight:700;letter-spacing:-.03em">Page title</span></div>
+      <div class="type-row"><span class="spec">21 / 640 / -.02em</span><span class="fc-num" style="font-size:21px">125.2</span></div>
+      <div class="type-row"><span class="spec">15 / 560</span><span style="font-size:15px;font-weight:560">Player name</span></div>
+      <div class="type-row"><span class="spec">13 / 400 / muted</span><span style="font-size:13px" class="muted">Supporting detail</span></div>
+      <div class="type-row"><span class="spec">11 / 650 / .14em caps</span><span style="font-size:11px;font-weight:650;letter-spacing:.14em;text-transform:uppercase" class="muted">Section label</span></div>
+    </div>
+
+    <div class="rule">
+      <b>Numbers are the hero</b>
+      <span class="muted">Every numeral is set in tabular figures so columns align, and stats
+      carry more weight than the words next to them. You are here to compare numbers. The
+      labels are just there to tell you which ones.</span>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="fc-tick"></span> In use</h2>
+    <div class="panel">
+      <div class="tier"><span class="fc-tick"></span> Tier 3</div>
+      <div class="prow"><span class="rk">18</span><span class="pos RB">RB</span>
+        <span><span class="nm">Bucky Irving</span><div class="mt">TB · RB6 · bye 9</div></span>
+        <span style="flex:1"></span><span class="rt fc-num">14.2</span></div>
+      <div class="prow"><span class="rk">20</span><span class="pos WR">WR</span>
+        <span><span class="nm">Marvin Harrison Jr.</span><div class="mt">ARI · WR8 · bye 8</div></span>
+        <span style="flex:1"></span><span class="rt fc-num">13.7</span></div>
+      <div class="tier"><span class="fc-tick"></span> Tier 4</div>
+      <div class="prow"><span class="rk">22</span><span class="pos TE">TE</span>
+        <span><span class="nm">Sam LaPorta</span><div class="mt">DET · TE4 · bye 5</div></span>
+        <span style="flex:1"></span><span class="rt fc-num">11.9</span></div>
+    </div>
+  </section>
+
+  <section class="assets">
+    <h2><span class="fc-tick"></span> Assets</h2>
+    <div class="grid" style="gap:8px">
+      <a href="brand/mark.svg" download><span class="fn">mark.svg</span><span class="ds">Two colour, primary</span></a>
+      <a href="brand/mark-mono.svg" download><span class="fn">mark-mono.svg</span><span class="ds">Single colour</span></a>
+      <a href="brand/logo.svg" download><span class="fn">logo.svg</span><span class="ds">Horizontal lockup</span></a>
+      <a href="brand/tokens.css" download><span class="fn">tokens.css</span><span class="ds">Every token, the source of truth</span></a>
+    </div>
+  </section>
+
+  <footer>
+    Tokens on this page are read live from <code>brand/tokens.css</code>, so the swatches
+    cannot drift from the product. &middot; <a href="./">Back to the dashboard</a>
+  </footer>
+</div>
+
+<script>
+/* Swatch hex values are read from the live computed styles rather than typed
+   here, so a token change in tokens.css updates this page automatically and a
+   stale swatch is impossible. */
+const s = getComputedStyle(document.documentElement);
+const toHex = (v) => {
+  v = v.trim();
+  if (v.startsWith("#")) return v.toUpperCase();
+  const m = v.match(/(\d+(?:\.\d+)?)/g);
+  if (!m) return v;
+  return "#" + m.slice(0, 3).map(n => Number(n).toString(16).padStart(2, "0")).join("").toUpperCase();
+};
+const map = {
+  hxSignal:"--signal", hxSignalDim:"--signal-dim", hxInk:"--ink", hxSurface:"--surface",
+  hxSurface2:"--surface-2", hxLine:"--line", hxText:"--text", hxMuted:"--muted",
+  hxQb:"--qb", hxRb:"--rb", hxWr:"--wr", hxTe:"--te", hxK:"--k", hxDst:"--dst",
+};
+for (const [id, token] of Object.entries(map)) {
+  const node = document.getElementById(id);
+  if (node) node.textContent = toHex(s.getPropertyValue(token));
+}
+</script>
+</body>
+</html>

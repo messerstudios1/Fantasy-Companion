@@ -14,13 +14,14 @@ open a terminal or install anything on your computer.
 1. [Before anything else: the one time setup](#before-anything-else-the-one-time-setup)
 2. [Getting your ESPN cookies](#getting-your-espn-cookies)
 3. [The dashboard](#the-dashboard)
-4. [The tools](#the-tools)
-5. [Draft day playbook](#draft-day-playbook)
-6. [When your cookies expire](#when-your-cookies-expire)
-7. [Asking Claude to run things](#asking-claude-to-run-things)
-8. [Football terms used in the reports](#football-terms-used-in-the-reports)
-9. [How the code is organized](#how-the-code-is-organized)
-10. [Appendix: running on your own computer instead](#appendix-running-on-your-own-computer-instead)
+4. [Brand](#brand)
+5. [The tools](#the-tools)
+6. [Draft day playbook](#draft-day-playbook)
+7. [When your cookies expire](#when-your-cookies-expire)
+8. [Asking Claude to run things](#asking-claude-to-run-things)
+9. [Football terms used in the reports](#football-terms-used-in-the-reports)
+10. [How the code is organized](#how-the-code-is-organized)
+11. [Appendix: running on your own computer instead](#appendix-running-on-your-own-computer-instead)
 
 ---
 
@@ -217,6 +218,79 @@ Honest caveat: GitHub throttles 5 minute schedules harder than any other
 interval and delays them when busy. Expect a refresh every 5 to 15 minutes in
 practice. Treat it as a background top-up and still trigger a manual run when
 you want the board current for your own pick.
+
+---
+
+## Brand
+
+Live brand pack: **https://messerstudios1.github.io/Fantasy-Companion/brand.html**
+
+Everything on that page reads its colour values from `docs/brand/tokens.css` at
+runtime, which is the same file the dashboard loads. The swatches physically
+cannot drift from the product.
+
+### The mark
+
+Three bars, descending, on an 8° lean. It is a ranked stack, not a football.
+
+A football would say "sports", which you already know. A descending stack says
+*tiers*, which is the one idea the whole product is built on: players are
+grouped by quality, and the moment a group runs out is the moment you act.
+Three shapes is few enough to survive at 16px.
+
+### The bold choice: the lean
+
+**Everything structural leans 8°. Nothing informational ever does.**
+
+Fantasy sports interfaces are relentlessly upright. A consistent lean across
+the furniture gives this one a silhouette you can recognise from across a room.
+
+It is also load-bearing rather than decorative. The lean is how you tell chrome
+from content without reading either: the logo leans, tier ticks lean, decorative
+marks lean. Player names, projections, ranks and any number you might act on
+stay dead level. If a user could misread something because it is tilted, it does
+not tilt.
+
+### Signal
+
+One accent, `--signal`, and it means one thing: **act now**.
+
+Not a colour sprinkled on things we like. It marks the moment the product exists
+for: you are on the clock, this lineup is costing you points, this tier is about
+to empty. If Signal is on screen, there is something to do. Used decoratively it
+would mean nothing, which is how most accent colours end up.
+
+The single exception is the logo, which is the product's signature rather than a
+piece of advice.
+
+### The depth chart
+
+Position colours are fixed and never reassigned, so they become readable without
+the label after about a week of use. They and Signal are the only chroma in the
+system.
+
+| | | | | | |
+|---|---|---|---|---|---|
+| QB | RB | WR | TE | K | D/ST |
+
+### Type
+
+The system font stack, deliberately. No webfont means nothing to load, nothing
+to license, nothing to break offline, and text that already looks native on
+whatever device is reading it. The personality lives in the lean and in Signal,
+not in a typeface.
+
+Every numeral is set in tabular figures so columns of numbers line up, and stats
+carry more weight than the labels beside them. You are here to compare numbers.
+
+### Assets
+
+```
+docs/brand/mark.svg        Two colour, primary
+docs/brand/mark-mono.svg   Single colour, for tiny sizes and one-colour print
+docs/brand/logo.svg        Horizontal lockup
+docs/brand/tokens.css      Every token. The source of truth.
+```
 
 ---
 
@@ -497,6 +571,10 @@ tests/
 docs/
   index.html            The dashboard. Plain HTML, CSS and JavaScript, no build
                         step and no framework, so it cannot rot.
+  brand.html            The live brand pack.
+  brand/tokens.css      Every design token. Loaded by both pages, so they
+                        cannot drift apart.
+  brand/*.svg           Logo assets.
   data/*.json           Written by each tool, committed by the workflow, read
                         by the dashboard.
 

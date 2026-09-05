@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Fantasy Companion">
+  <title>Fantasy Companion</title>
+  <!-- Three bars, descending. A ranked stack: tier 1 widest at the top,
+       falling away beneath it. Leaning 8 degrees, which is the system rule. -->
+  <g transform="rotate(-8 16 16)">
+    <rect x="4" y="6.6"  width="24" height="5.2" rx="2.6" fill="#FF5A36"/>
+    <rect x="4" y="14.4" width="17" height="5.2" rx="2.6" fill="currentColor" opacity=".82"/>
+    <rect x="4" y="22.2" width="10" height="5.2" rx="2.6" fill="currentColor" opacity=".42"/>
+  </g>
+</svg>
