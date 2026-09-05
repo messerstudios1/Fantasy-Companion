@@ -1,0 +1,15 @@
+{
+  "_comment": [
+    "Non-secret league settings. Safe to commit: a league ID identifies a league",
+    "but grants no access to it. Reading a private league still requires valid",
+    "espn_s2 and SWID cookies from an actual member, and those live only in",
+    "GitHub's encrypted Secrets, never in this file.",
+    "",
+    "Any value here can be overridden by an environment variable of the same",
+    "name in upper case (LEAGUE_ID, TEAM_ID, SEASON_YEAR), which is how you",
+    "would point the tools at a different season without editing the file."
+  ],
+  "league_id": 1283630842,
+  "team_id": 10,
+  "season_year": 2026
+}

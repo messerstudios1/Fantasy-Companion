@@ -43,31 +43,52 @@ push.
 
 After the merge, the Actions tab will list all four workflows.
 
-### Step B: add your three secrets
+### Step B: add your two secrets
 
 1. Open this repository on GitHub.
 2. Click **Settings** (the tab along the top of the repo, with the gear icon).
 3. In the left sidebar, click **Secrets and variables**, then **Actions**.
 4. Make sure you are on the **Secrets** tab, not "Variables".
-5. Click the green **New repository secret** button and add these three, one
-   at a time:
+5. Click the green **New repository secret** button and add these two, one at
+   a time:
 
-| Name (type it exactly) | Value |
+| Name (type it exactly, case matters) | Value |
 |---|---|
-| `LEAGUE_ID` | The number in your ESPN league URL after `leagueId=` |
 | `ESPN_S2` | A long cookie value. See the next section. |
 | `SWID` | A short cookie value in curly braces. See the next section. |
 
-Finding `LEAGUE_ID`: open your league on ESPN and look at the address bar.
+That is the whole list. GitHub encrypts secrets and censors them out of
+workflow logs. Once saved you cannot read a secret back, only overwrite it.
+That is normal, not a bug.
+
+#### Why the league ID is not in that list
+
+Your league ID, team ID and season live in `league.json` at the project root:
+
+```json
+{
+  "league_id": 1283630842,
+  "team_id": 10,
+  "season_year": 2026
+}
+```
+
+None of those are credentials. A league ID identifies a league but grants no
+access to it, and reading a private league still requires valid cookies from
+an actual member. So there is nothing gained by hiding them, and keeping them
+in the repo means two fewer things to paste into a settings page.
+
+Both numbers come straight out of your ESPN team URL:
 
 ```
-https://fantasy.espn.com/football/league?leagueId=123456789
-                                                  ^^^^^^^^^
-                                                  this part
+https://fantasy.espn.com/football/team?leagueId=1283630842&teamId=10&seasonId=2026
+                                                ^^^^^^^^^^        ^^          ^^^^
+                                                league_id     team_id   season_year
 ```
 
-GitHub encrypts secrets and censors them out of workflow logs. Once saved you
-cannot read them back, only overwrite them. That is normal.
+To point the tools at a different season or league, edit that file. An
+environment variable or repository Secret of the same name (`LEAGUE_ID`,
+`TEAM_ID`, `SEASON_YEAR`) overrides it if you ever need that.
 
 ### Step C: confirm it works
 
@@ -222,6 +243,12 @@ It checks four things in order and tells you exactly which one broke:
 2. Does ESPN accept the cookies? *(this is the part that expires)*
 3. Can it work out which team is yours?
 4. Can it read your roster and the league's scoring rules?
+
+Step 3 has three fallbacks, tried in order: your SWID cookie matched against
+each team's owner list, then `team_id` from `league.json`, then `TEAM_NAME` if
+you set one. The team ID fallback is the dependable one, since it does not
+care which ESPN account the cookies came from, and it survives you renaming
+your team mid-season.
 
 It also prints your league setup: team count, scoring format, and which roster
 slots you have to fill each week.
@@ -382,7 +409,7 @@ crutch.
 1. Redo [Getting your ESPN cookies](#getting-your-espn-cookies).
 2. Repository **Settings** > **Secrets and variables** > **Actions**.
 3. Click the pencil icon next to `ESPN_S2`, paste the new value, save.
-4. Do the same for `SWID`.
+4. Do the same for `SWID`. Those two are the only secrets there.
 5. Re-run **"1. Test ESPN Connection"** to confirm.
 
 You do not need to change any code, and you do not need to touch anything else.
@@ -472,6 +499,9 @@ docs/
                         step and no framework, so it cannot rot.
   data/*.json           Written by each tool, committed by the workflow, read
                         by the dashboard.
+
+league.json             League ID, team ID and season. Not secret, committed.
+.env.example            Template for local runs. Secrets only.
 
 data/
   rankings_cache.json   Last successful rankings download. Auto-managed.

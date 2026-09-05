@@ -54,6 +54,7 @@ jobs:
 
       - name: Run the connection test
         env:
+          # Optional override. Normally left unset so league.json is used.
           LEAGUE_ID: ${{ secrets.LEAGUE_ID }}
           ESPN_S2: ${{ secrets.ESPN_S2 }}
           SWID: ${{ secrets.SWID }}

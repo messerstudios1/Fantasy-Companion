@@ -105,10 +105,15 @@ def find_my_team(league: League, config: Config):
     """
     Figure out which of the league's teams is yours.
 
-    Preferred method: match the SWID cookie against each team's owner list.
-    The SWID *is* your ESPN user ID, so this is exact.
+    Three methods, tried in order:
 
-    Fallback: match on TEAM_NAME from config, if you set one.
+      1. Match the SWID cookie against each team's owner list. The SWID *is*
+         your ESPN user ID, so this is exact when it works.
+      2. Match TEAM_ID, the number after 'teamId=' in your ESPN team URL.
+         This is the reliable fallback: it does not depend on the cookies
+         belonging to the right account, and it survives you renaming your
+         team mid-season.
+      3. Match TEAM_NAME, if one is configured.
     """
     target_swid = config.swid.strip("{}").upper()
 
@@ -117,6 +122,17 @@ def find_my_team(league: League, config: Config):
             owner_id = owner.get("id") if isinstance(owner, dict) else str(owner)
             if owner_id and owner_id.strip("{}").upper() == target_swid:
                 return team
+
+    if config.team_id is not None:
+        for team in league.teams:
+            if team.team_id == config.team_id:
+                return team
+        raise LeagueNotFoundError(
+            f"No team with ID {config.team_id} in this league.\n"
+            "Check the 'team_id' value in league.json against the number after\n"
+            "'teamId=' in your ESPN team URL. Teams found:\n  "
+            + "\n  ".join(f"{t.team_id}: {t.team_name}" for t in league.teams)
+        )
 
     if config.team_name:
         wanted = config.team_name.strip().lower()

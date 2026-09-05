@@ -79,6 +79,7 @@ jobs:
       - name: Lineup optimizer
         id: lineup
         env:
+          # Optional override. Normally left unset so league.json is used.
           LEAGUE_ID: ${{ secrets.LEAGUE_ID }}
           ESPN_S2: ${{ secrets.ESPN_S2 }}
           SWID: ${{ secrets.SWID }}
@@ -92,6 +93,7 @@ jobs:
       - name: Waiver wire scan
         if: always()
         env:
+          # Optional override. Normally left unset so league.json is used.
           LEAGUE_ID: ${{ secrets.LEAGUE_ID }}
           ESPN_S2: ${{ secrets.ESPN_S2 }}
           SWID: ${{ secrets.SWID }}
