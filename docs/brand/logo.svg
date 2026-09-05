@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 44" width="260" height="44" role="img" aria-label="Fantasy Companion">
+  <title>Fantasy Companion</title>
+  <!-- Horizontal lockup. The mark and the wordmark lean together as one unit:
+       the lean is never applied to only half of the lockup. -->
+  <g transform="rotate(-8 22 22)">
+    <rect x="6" y="9"    width="32" height="6.9" rx="3.45" fill="#FF5A36"/>
+    <rect x="6" y="19.4" width="22.7" height="6.9" rx="3.45" fill="currentColor" opacity=".82"/>
+    <rect x="6" y="29.8" width="13.3" height="6.9" rx="3.45" fill="currentColor" opacity=".42"/>
+  </g>
+  <g transform="rotate(-8 22 22) translate(52 0)" fill="currentColor"
+     font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <text x="0" y="19" font-size="11.5" font-weight="600" letter-spacing="2.6" opacity=".55">FANTASY</text>
+    <text x="0" y="36" font-size="19" font-weight="700" letter-spacing="-.4">Companion</text>
+  </g>
+</svg>

@@ -1,17 +1,27 @@
 """
 Loads your league settings and ESPN credentials.
 
-Nothing sensitive is stored in this file. Values come from either:
-  1. A local ".env" file (used when running on your own machine), or
-  2. Environment variables (used when running inside GitHub Actions,
-     where the values come from encrypted repository Secrets).
+Settings come from two places, deliberately separated by sensitivity:
 
-Both paths end up in the same place, so the rest of the code never has to
-care where the credentials came from.
+  SECRET (cookies)      Never written to a file in this repository. They come
+                        from GitHub's encrypted Secrets when running in
+                        Actions, or from a local ".env" file (which .gitignore
+                        blocks from ever being committed) when running on your
+                        own machine.
+
+  NOT SECRET (league    Committed to "league.json" at the project root. A
+  id, team id, season)  league ID identifies a league but grants no access to
+                        it, so there is nothing gained by hiding it, and
+                        keeping it in the repo means one less thing to paste
+                        into a settings page.
+
+Environment variables win over league.json, so a workflow can point the tools
+at a different season or league without anyone editing a file.
 """
 
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -37,11 +47,41 @@ class Config:
     year: int
     espn_s2: str
     swid: str
+    team_id: int | None = None
     team_name: str | None = None
 
     @property
     def is_private(self) -> bool:
         return bool(self.espn_s2 and self.swid)
+
+
+def _load_league_file() -> dict:
+    """Read league.json if it exists. A missing or broken file is not fatal."""
+    path = ROOT / "league.json"
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text())
+    except json.JSONDecodeError:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+LEAGUE_FILE = _load_league_file()
+
+
+def _setting(name: str) -> str:
+    """
+    Look a setting up, environment first, then league.json.
+
+    Environment wins so that a workflow input or a one-off override always
+    beats the committed default.
+    """
+    value = (os.getenv(name) or "").strip()
+    if value:
+        return value
+    from_file = LEAGUE_FILE.get(name.lower())
+    return str(from_file).strip() if from_file not in (None, "") else ""
 
 
 def _require(name: str) -> str:
@@ -77,7 +117,18 @@ def _normalize_swid(raw: str) -> str:
 
 def load_config() -> Config:
     """Read settings from the environment and sanity check them."""
-    raw_league_id = _require("LEAGUE_ID")
+    raw_league_id = _setting("LEAGUE_ID")
+    if not raw_league_id:
+        raise ConfigError(
+            "Missing required setting: LEAGUE_ID\n"
+            "\n"
+            "  Normally this comes from 'league.json' in the project root.\n"
+            "  If that file is missing, either restore it or set LEAGUE_ID as a\n"
+            "  repository Secret under Settings -> Secrets and variables -> Actions.\n"
+            "\n"
+            "  Find the value in your ESPN league URL, after 'leagueId=':\n"
+            "  https://fantasy.espn.com/football/team?leagueId=123456789"
+        )
     try:
         league_id = int(raw_league_id)
     except ValueError:
@@ -87,9 +138,12 @@ def load_config() -> Config:
             f"  https://fantasy.espn.com/football/league?leagueId=123456789"
         ) from None
 
-    raw_year = (os.getenv("SEASON_YEAR") or "").strip()
+    raw_year = _setting("SEASON_YEAR")
     if not raw_year:
-        raise ConfigError("Missing required setting: SEASON_YEAR (for example: 2026)")
+        raise ConfigError(
+            "Missing required setting: SEASON_YEAR (for example: 2026).\n"
+            "  Normally this comes from 'league.json' in the project root."
+        )
     try:
         year = int(raw_year)
     except ValueError:
@@ -97,6 +151,12 @@ def load_config() -> Config:
 
     espn_s2 = _require("ESPN_S2")
     swid = _normalize_swid(_require("SWID"))
+
+    raw_team_id = _setting("TEAM_ID")
+    try:
+        team_id = int(raw_team_id) if raw_team_id else None
+    except ValueError:
+        team_id = None
 
     team_name = (os.getenv("TEAM_NAME") or "").strip() or None
 
@@ -107,5 +167,6 @@ def load_config() -> Config:
         year=year,
         espn_s2=espn_s2,
         swid=swid,
+        team_id=team_id,
         team_name=team_name,
     )

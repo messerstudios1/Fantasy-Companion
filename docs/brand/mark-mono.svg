@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Fantasy Companion">
+  <title>Fantasy Companion, single colour</title>
+  <!-- One-colour version for embroidery, stamps, favicons at tiny sizes, and
+       anywhere Signal orange cannot be reproduced. Inherits currentColor. -->
+  <g transform="rotate(-8 16 16)" fill="currentColor">
+    <rect x="4" y="6.6"  width="24" height="5.2" rx="2.6"/>
+    <rect x="4" y="14.4" width="17" height="5.2" rx="2.6" opacity=".7"/>
+    <rect x="4" y="22.2" width="10" height="5.2" rx="2.6" opacity=".4"/>
+  </g>
+</svg>

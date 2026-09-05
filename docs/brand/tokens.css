@@ -1,0 +1,122 @@
+/* ===========================================================================
+   FANTASY COMPANION — DESIGN TOKENS
+   The single source of truth. The dashboard and the brand pack both load this
+   file, so a value changed here changes everywhere and the two cannot drift.
+   =========================================================================== */
+
+:root {
+  /* --- Ink & Paper -------------------------------------------------------
+     Near-black rather than pure black. Pure black on an OLED phone in a dark
+     room is a hole in the screen; a few points of lift keeps the surfaces
+     reading as surfaces. */
+  --ink:        #0C0D10;
+  --surface:    #15171C;
+  --surface-2:  #1C1F26;
+  --line:       #272B34;
+  --text:       #ECEEF2;
+  --muted:      #939AA6;
+  --faint:      #676E7A;
+
+  /* --- Signal ------------------------------------------------------------
+     One accent, and it means one thing: act now. Not decoration. The only
+     place it appears without that meaning is the logo itself. */
+  --signal:     #FF5A36;
+  --signal-dim: #3A1A12;
+
+  /* Kept as an alias so existing component CSS keeps working. */
+  --hot: var(--signal);
+
+  /* --- The Depth Chart ---------------------------------------------------
+     Position colours. Fixed, learnable, never reassigned. These are the only
+     other chroma in the system. */
+  --qb:  #A78BFA;
+  --rb:  #4ADE80;
+  --wr:  #60A5FA;
+  --te:  #FBBF24;
+  --k:   #94A3B8;
+  --dst: #F472B6;
+
+  /* --- Status ------------------------------------------------------------ */
+  --good: #4ADE80;
+  --warn: #FBBF24;
+  --bad:  #F87171;
+
+  /* --- Form -------------------------------------------------------------- */
+  --lean: -8deg;          /* the system lean. chrome only, never data. */
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.18);
+
+  /* --- Type -------------------------------------------------------------- */
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --ink:       #F7F8FA;
+    --surface:   #FFFFFF;
+    --surface-2: #F0F2F5;
+    --line:      #E1E5EB;
+    --text:      #12141A;
+    --muted:     #5A626E;
+    --faint:     #878E99;
+
+    /* Signal darkens on paper. The dark-mode orange fails contrast as text
+       on white, and an accent that can only be used as a fill is only half
+       an accent. */
+    --signal:     #E1341A;
+    --signal-dim: #FFE9E4;
+
+    --qb:  #7C3AED;
+    --rb:  #16A34A;
+    --wr:  #2563EB;
+    --te:  #B45309;
+    --k:   #64748B;
+    --dst: #DB2777;
+
+    --good: #16A34A;
+    --warn: #B45309;
+    --bad:  #DC2626;
+
+    --shadow: 0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.06);
+  }
+}
+
+/* ===========================================================================
+   BRAND PRIMITIVES
+   =========================================================================== */
+
+/* The lockup. Mark and wordmark lean as one unit, never independently. */
+.fc-lockup {
+  display: inline-flex; align-items: center; gap: 9px;
+  transform: rotate(var(--lean));
+  transform-origin: center;
+}
+.fc-mark { display: block; flex: none; color: var(--text); }
+.fc-word { line-height: 1; }
+.fc-word .kicker {
+  display: block; font-size: 8.5px; font-weight: 650;
+  letter-spacing: .22em; color: var(--muted); text-transform: uppercase;
+}
+.fc-word .name {
+  display: block; font-size: 16px; font-weight: 700;
+  letter-spacing: -.02em; color: var(--text); margin-top: 1px;
+}
+
+/* Display size. Scaling the small lockup with transform: scale() looks the
+   same at a glance but lays out at the original size, so the overflow blows
+   out the page's scroll width. Size the parts instead. */
+.fc-lockup--lg { gap: 16px; }
+.fc-lockup--lg .fc-word .kicker { font-size: 15px; letter-spacing: .3em; }
+.fc-lockup--lg .fc-word .name { font-size: 42px; margin-top: 3px; }
+
+/* The tier tick. One bar lifted straight out of the mark, reused as the
+   marker on every tier divider in the product. */
+.fc-tick {
+  display: inline-block; width: 14px; height: 3px; border-radius: 2px;
+  background: var(--signal); transform: rotate(var(--lean)); flex: none;
+}
+
+/* Numerals are the hero. Tabular figures everywhere so columns of numbers
+   line up, and a tighter track at display sizes. */
+.fc-num { font-variant-numeric: tabular-nums; letter-spacing: -.02em; font-weight: 640; }

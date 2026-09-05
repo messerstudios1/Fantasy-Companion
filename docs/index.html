@@ -5,71 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark light">
 <title>Fantasy Companion</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8F%88%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20width%3D%2232%22%20height%3D%2232%22%20role%3D%22img%22%20aria-label%3D%22Fantasy%20Companion%22%3E%20%3Cg%20transform%3D%22rotate%28-8%2016%2016%29%22%3E%20%3Crect%20x%3D%224%22%20y%3D%226.6%22%20width%3D%2224%22%20height%3D%225.2%22%20rx%3D%222.6%22%20fill%3D%22%23FF5A36%22%2F%3E%20%3Crect%20x%3D%224%22%20y%3D%2214.4%22%20width%3D%2217%22%20height%3D%225.2%22%20rx%3D%222.6%22%20fill%3D%22%23E9EEF2%22%20opacity%3D%22.82%22%2F%3E%20%3Crect%20x%3D%224%22%20y%3D%2222.2%22%20width%3D%2210%22%20height%3D%225.2%22%20rx%3D%222.6%22%20fill%3D%22%23E9EEF2%22%20opacity%3D%22.42%22%2F%3E%20%3C%2Fg%3E%20%3C%2Fsvg%3E">
+<link rel="stylesheet" href="brand/tokens.css">
 <style>
-/* ---------------------------------------------------------------------------
-   Palette. Dark first, since this gets used on a phone in the evening.
-   --------------------------------------------------------------------------- */
-:root {
-  --bg: #0e1013;
-  --surface: #16191f;
-  --surface-2: #1d212a;
-  --border: #272c37;
-  --text: #e9ecf1;
-  --muted: #929aa8;
-  --faint: #6b7280;
-
-  --qb: #a78bfa;
-  --rb: #4ade80;
-  --wr: #60a5fa;
-  --te: #fbbf24;
-  --k:  #94a3b8;
-  --dst:#f472b6;
-
-  --good: #4ade80;
-  --warn: #fbbf24;
-  --bad:  #f87171;
-  --hot:  #ff7a45;
-
-  --radius: 14px;
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.18);
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f6f7f9;
-    --surface: #ffffff;
-    --surface-2: #f1f3f6;
-    --border: #e0e4ea;
-    --text: #14171c;
-    --muted: #5d6673;
-    --faint: #8b939f;
-
-    --qb: #7c3aed;
-    --rb: #16a34a;
-    --wr: #2563eb;
-    --te: #b45309;
-    --k:  #64748b;
-    --dst:#db2777;
-
-    --good: #16a34a;
-    --warn: #b45309;
-    --bad:  #dc2626;
-    --hot:  #ea580c;
-
-    --shadow: 0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.06);
-  }
-}
-
 * { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--ink);
   color: var(--text);
-  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font: 15px/1.5 var(--font);
   font-feature-settings: "tnum" 1, "cv05" 1;
   padding-bottom: env(safe-area-inset-bottom);
 }
@@ -79,30 +26,35 @@ body {
 /* --- Header ---------------------------------------------------------- */
 header {
   position: sticky; top: 0; z-index: 20;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  background: color-mix(in srgb, var(--ink) 88%, transparent);
   backdrop-filter: saturate(180%) blur(14px);
   -webkit-backdrop-filter: saturate(180%) blur(14px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
   padding-top: env(safe-area-inset-top);
 }
 .head-inner {
   max-width: 760px; margin: 0 auto; padding: 12px 14px 0;
   display: flex; align-items: flex-start; gap: 12px;
 }
-.brand { flex: 1; min-width: 0; }
-.brand h1 {
-  margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -.01em;
+.brand {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: inherit;
+}
+.brand .fc-lockup { flex: none; }
+.brand-text { min-width: 0; }
+.brand-text #leagueName {
+  display: block; font-size: 17px; font-weight: 650; letter-spacing: -.01em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .brand .sub {
-  margin-top: 2px; font-size: 12px; color: var(--muted);
+  display: block; margin-top: 2px; font-size: 12px; color: var(--muted);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .refresh {
   flex: none; display: inline-flex; align-items: center; gap: 6px;
   min-height: 36px; padding: 0 12px;
   background: var(--surface-2); color: var(--text);
-  border: 1px solid var(--border); border-radius: 999px;
+  border: 1px solid var(--line); border-radius: 999px;
   font: inherit; font-size: 13px; font-weight: 550;
   cursor: pointer; text-decoration: none;
 }
@@ -126,7 +78,7 @@ nav button[aria-selected="true"] { color: var(--text); border-bottom-color: var(
 
 /* --- Generic blocks -------------------------------------------------- */
 .card {
-  background: var(--surface); border: 1px solid var(--border);
+  background: var(--surface); border: 1px solid var(--line);
   border-radius: var(--radius); padding: 14px; margin: 12px 0;
   box-shadow: var(--shadow);
 }
@@ -135,7 +87,7 @@ nav button[aria-selected="true"] { color: var(--text); border-bottom-color: var(
   letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
 }
 .note {
-  border-left: 3px solid var(--border); padding: 10px 0 10px 12px;
+  border-left: 3px solid var(--line); padding: 10px 0 10px 12px;
   color: var(--muted); font-size: 13px; margin: 12px 0;
 }
 .note.warn { border-color: var(--warn); color: var(--text); }
@@ -151,9 +103,10 @@ nav button[aria-selected="true"] { color: var(--text); border-bottom-color: var(
   background: var(--surface-2); border-radius: 10px; padding: 10px 12px;
 }
 .stat .k { font-size: 11px; color: var(--muted); letter-spacing: .03em; }
-.stat .v { font-size: 21px; font-weight: 640; letter-spacing: -.02em; margin-top: 2px; }
-.stat.hot { background: color-mix(in srgb, var(--hot) 18%, var(--surface-2)); }
-.stat.hot .v { color: var(--hot); }
+.stat .v { font-size: 21px; font-weight: 640; letter-spacing: -.02em; margin-top: 2px;
+  font-variant-numeric: tabular-nums; }
+.stat.hot { background: var(--signal-dim); }
+.stat.hot .v { color: var(--signal); }
 
 /* --- Position chips -------------------------------------------------- */
 .pos {
@@ -171,18 +124,18 @@ nav button[aria-selected="true"] { color: var(--text); border-bottom-color: var(
 .filters::-webkit-scrollbar { display: none; }
 .filters button {
   flex: none; min-height: 34px; padding: 0 13px; border-radius: 999px;
-  background: var(--surface); border: 1px solid var(--border);
+  background: var(--surface); border: 1px solid var(--line);
   color: var(--muted); font: inherit; font-size: 13px; font-weight: 550; cursor: pointer;
 }
 .filters button[aria-pressed="true"] {
-  background: var(--text); color: var(--bg); border-color: var(--text);
+  background: var(--text); color: var(--ink); border-color: var(--text);
 }
 
 /* --- Player rows ----------------------------------------------------- */
 .plist { display: flex; flex-direction: column; }
 .prow {
   display: flex; align-items: center; gap: 10px;
-  padding: 11px 2px; border-bottom: 1px solid var(--border);
+  padding: 11px 2px; border-bottom: 1px solid var(--line);
 }
 .prow:last-child { border-bottom: 0; }
 .prow.unavailable { opacity: .55; }
@@ -203,18 +156,24 @@ nav button[aria-selected="true"] { color: var(--text); border-bottom-color: var(
 .pright .small { font-size: 11px; color: var(--faint); margin-top: 1px; }
 
 /* --- Tier divider ---------------------------------------------------- */
+/* The tick is one bar lifted straight out of the logo. It leans; the label
+   beside it does not, per the system rule. */
 .tier {
-  display: flex; align-items: center; gap: 10px;
-  margin: 14px 0 4px; font-size: 11px; font-weight: 650;
+  display: flex; align-items: center; gap: 9px;
+  margin: 16px 0 4px; font-size: 11px; font-weight: 650;
   letter-spacing: .08em; text-transform: uppercase; color: var(--faint);
 }
-.tier::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+.tier::before {
+  content: ""; flex: none; width: 14px; height: 3px; border-radius: 2px;
+  background: var(--signal); transform: rotate(var(--lean));
+}
+.tier::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 
 /* --- Urgency --------------------------------------------------------- */
-.urg { display: flex; align-items: baseline; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.urg { display: flex; align-items: baseline; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
 .urg:last-child { border-bottom: 0; }
 .urg .txt { flex: 1; font-size: 13px; color: var(--muted); }
-.urg .txt.alert { color: var(--hot); font-weight: 560; }
+.urg .txt.alert { color: var(--signal); font-weight: 560; }
 .urg .n { font-size: 13px; font-weight: 620; color: var(--faint); }
 
 /* --- Swaps ----------------------------------------------------------- */
@@ -241,7 +200,7 @@ nav button[aria-selected="true"] { color: var(--text); border-bottom-color: var(
 /* --- Bars ------------------------------------------------------------ */
 .bar { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
 .bar .lb { font-size: 10.5px; color: var(--faint); width: 62px; flex: none; letter-spacing: .03em; }
-.bar .track { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.bar .track { flex: 1; height: 5px; background: var(--line); border-radius: 3px; overflow: hidden; }
 .bar .fill { height: 100%; border-radius: 3px; }
 .bar .vl { font-size: 11px; color: var(--muted); width: 26px; text-align: right; flex: none; }
 
@@ -253,10 +212,21 @@ footer a { color: var(--muted); }
 
 <header>
   <div class="head-inner">
-    <div class="brand">
-      <h1 id="leagueName">Fantasy Companion</h1>
-      <div class="sub" id="subLine">Loading…</div>
-    </div>
+    <a class="brand" href="./" aria-label="Fantasy Companion">
+      <span class="fc-lockup">
+        <svg class="fc-mark" width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">
+          <g transform="rotate(-8 16 16)">
+            <rect x="4" y="6.6"  width="24" height="5.2" rx="2.6" fill="#FF5A36"/>
+            <rect x="4" y="14.4" width="17" height="5.2" rx="2.6" fill="currentColor" opacity=".82"/>
+            <rect x="4" y="22.2" width="10" height="5.2" rx="2.6" fill="currentColor" opacity=".42"/>
+          </g>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <span id="leagueName">Fantasy Companion</span>
+        <span class="sub" id="subLine">Loading…</span>
+      </span>
+    </a>
     <button class="refresh" id="refreshBtn" title="Reload the latest data">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
         <path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/>
@@ -275,7 +245,8 @@ footer a { color: var(--muted); }
   <main id="view"><div class="empty">Loading…</div></main>
   <footer>
     Read-only. Nothing here can change your team.<br>
-    <a id="actionsLink" href="#" target="_blank" rel="noopener">Run a refresh on GitHub Actions →</a>
+    <a id="actionsLink" href="#" target="_blank" rel="noopener">Run a refresh on GitHub Actions →</a><br>
+    <a href="brand.html">Brand pack</a>
   </footer>
 </div>
 

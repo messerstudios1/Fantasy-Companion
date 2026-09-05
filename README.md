@@ -14,13 +14,14 @@ open a terminal or install anything on your computer.
 1. [Before anything else: the one time setup](#before-anything-else-the-one-time-setup)
 2. [Getting your ESPN cookies](#getting-your-espn-cookies)
 3. [The dashboard](#the-dashboard)
-4. [The tools](#the-tools)
-5. [Draft day playbook](#draft-day-playbook)
-6. [When your cookies expire](#when-your-cookies-expire)
-7. [Asking Claude to run things](#asking-claude-to-run-things)
-8. [Football terms used in the reports](#football-terms-used-in-the-reports)
-9. [How the code is organized](#how-the-code-is-organized)
-10. [Appendix: running on your own computer instead](#appendix-running-on-your-own-computer-instead)
+4. [Brand](#brand)
+5. [The tools](#the-tools)
+6. [Draft day playbook](#draft-day-playbook)
+7. [When your cookies expire](#when-your-cookies-expire)
+8. [Asking Claude to run things](#asking-claude-to-run-things)
+9. [Football terms used in the reports](#football-terms-used-in-the-reports)
+10. [How the code is organized](#how-the-code-is-organized)
+11. [Appendix: running on your own computer instead](#appendix-running-on-your-own-computer-instead)
 
 ---
 
@@ -43,31 +44,52 @@ push.
 
 After the merge, the Actions tab will list all four workflows.
 
-### Step B: add your three secrets
+### Step B: add your two secrets
 
 1. Open this repository on GitHub.
 2. Click **Settings** (the tab along the top of the repo, with the gear icon).
 3. In the left sidebar, click **Secrets and variables**, then **Actions**.
 4. Make sure you are on the **Secrets** tab, not "Variables".
-5. Click the green **New repository secret** button and add these three, one
-   at a time:
+5. Click the green **New repository secret** button and add these two, one at
+   a time:
 
-| Name (type it exactly) | Value |
+| Name (type it exactly, case matters) | Value |
 |---|---|
-| `LEAGUE_ID` | The number in your ESPN league URL after `leagueId=` |
 | `ESPN_S2` | A long cookie value. See the next section. |
 | `SWID` | A short cookie value in curly braces. See the next section. |
 
-Finding `LEAGUE_ID`: open your league on ESPN and look at the address bar.
+That is the whole list. GitHub encrypts secrets and censors them out of
+workflow logs. Once saved you cannot read a secret back, only overwrite it.
+That is normal, not a bug.
+
+#### Why the league ID is not in that list
+
+Your league ID, team ID and season live in `league.json` at the project root:
+
+```json
+{
+  "league_id": 1283630842,
+  "team_id": 10,
+  "season_year": 2026
+}
+```
+
+None of those are credentials. A league ID identifies a league but grants no
+access to it, and reading a private league still requires valid cookies from
+an actual member. So there is nothing gained by hiding them, and keeping them
+in the repo means two fewer things to paste into a settings page.
+
+Both numbers come straight out of your ESPN team URL:
 
 ```
-https://fantasy.espn.com/football/league?leagueId=123456789
-                                                  ^^^^^^^^^
-                                                  this part
+https://fantasy.espn.com/football/team?leagueId=1283630842&teamId=10&seasonId=2026
+                                                ^^^^^^^^^^        ^^          ^^^^
+                                                league_id     team_id   season_year
 ```
 
-GitHub encrypts secrets and censors them out of workflow logs. Once saved you
-cannot read them back, only overwrite them. That is normal.
+To point the tools at a different season or league, edit that file. An
+environment variable or repository Secret of the same name (`LEAGUE_ID`,
+`TEAM_ID`, `SEASON_YEAR`) overrides it if you ever need that.
 
 ### Step C: confirm it works
 
@@ -199,6 +221,79 @@ you want the board current for your own pick.
 
 ---
 
+## Brand
+
+Live brand pack: **https://messerstudios1.github.io/Fantasy-Companion/brand.html**
+
+Everything on that page reads its colour values from `docs/brand/tokens.css` at
+runtime, which is the same file the dashboard loads. The swatches physically
+cannot drift from the product.
+
+### The mark
+
+Three bars, descending, on an 8° lean. It is a ranked stack, not a football.
+
+A football would say "sports", which you already know. A descending stack says
+*tiers*, which is the one idea the whole product is built on: players are
+grouped by quality, and the moment a group runs out is the moment you act.
+Three shapes is few enough to survive at 16px.
+
+### The bold choice: the lean
+
+**Everything structural leans 8°. Nothing informational ever does.**
+
+Fantasy sports interfaces are relentlessly upright. A consistent lean across
+the furniture gives this one a silhouette you can recognise from across a room.
+
+It is also load-bearing rather than decorative. The lean is how you tell chrome
+from content without reading either: the logo leans, tier ticks lean, decorative
+marks lean. Player names, projections, ranks and any number you might act on
+stay dead level. If a user could misread something because it is tilted, it does
+not tilt.
+
+### Signal
+
+One accent, `--signal`, and it means one thing: **act now**.
+
+Not a colour sprinkled on things we like. It marks the moment the product exists
+for: you are on the clock, this lineup is costing you points, this tier is about
+to empty. If Signal is on screen, there is something to do. Used decoratively it
+would mean nothing, which is how most accent colours end up.
+
+The single exception is the logo, which is the product's signature rather than a
+piece of advice.
+
+### The depth chart
+
+Position colours are fixed and never reassigned, so they become readable without
+the label after about a week of use. They and Signal are the only chroma in the
+system.
+
+| | | | | | |
+|---|---|---|---|---|---|
+| QB | RB | WR | TE | K | D/ST |
+
+### Type
+
+The system font stack, deliberately. No webfont means nothing to load, nothing
+to license, nothing to break offline, and text that already looks native on
+whatever device is reading it. The personality lives in the lean and in Signal,
+not in a typeface.
+
+Every numeral is set in tabular figures so columns of numbers line up, and stats
+carry more weight than the labels beside them. You are here to compare numbers.
+
+### Assets
+
+```
+docs/brand/mark.svg        Two colour, primary
+docs/brand/mark-mono.svg   Single colour, for tiny sizes and one-colour print
+docs/brand/logo.svg        Horizontal lockup
+docs/brand/tokens.css      Every token. The source of truth.
+```
+
+---
+
 ## The tools
 
 ### How to run any workflow
@@ -222,6 +317,12 @@ It checks four things in order and tells you exactly which one broke:
 2. Does ESPN accept the cookies? *(this is the part that expires)*
 3. Can it work out which team is yours?
 4. Can it read your roster and the league's scoring rules?
+
+Step 3 has three fallbacks, tried in order: your SWID cookie matched against
+each team's owner list, then `team_id` from `league.json`, then `TEAM_NAME` if
+you set one. The team ID fallback is the dependable one, since it does not
+care which ESPN account the cookies came from, and it survives you renaming
+your team mid-season.
 
 It also prints your league setup: team count, scoring format, and which roster
 slots you have to fill each week.
@@ -382,7 +483,7 @@ crutch.
 1. Redo [Getting your ESPN cookies](#getting-your-espn-cookies).
 2. Repository **Settings** > **Secrets and variables** > **Actions**.
 3. Click the pencil icon next to `ESPN_S2`, paste the new value, save.
-4. Do the same for `SWID`.
+4. Do the same for `SWID`. Those two are the only secrets there.
 5. Re-run **"1. Test ESPN Connection"** to confirm.
 
 You do not need to change any code, and you do not need to touch anything else.
@@ -470,8 +571,15 @@ tests/
 docs/
   index.html            The dashboard. Plain HTML, CSS and JavaScript, no build
                         step and no framework, so it cannot rot.
+  brand.html            The live brand pack.
+  brand/tokens.css      Every design token. Loaded by both pages, so they
+                        cannot drift apart.
+  brand/*.svg           Logo assets.
   data/*.json           Written by each tool, committed by the workflow, read
                         by the dashboard.
+
+league.json             League ID, team ID and season. Not secret, committed.
+.env.example            Template for local runs. Secrets only.
 
 data/
   rankings_cache.json   Last successful rankings download. Auto-managed.
