@@ -1,0 +1,19 @@
+# Secrets: never commit these
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Generated reports (regenerated every run)
+output/*
+!output/.gitkeep
+
+# OS noise
+.DS_Store
+Thumbs.db
