@@ -42,6 +42,7 @@ from fantasy.espn_client import (
     describe_scoring,
     find_my_team,
 )
+from fantasy.export import write_json
 from fantasy.output import Report, fail
 from fantasy.waivers import (
     SCAN_POSITIONS,
@@ -71,14 +72,14 @@ def main() -> None:
     try:
         config = load_config()
     except ConfigError as exc:
-        fail(str(exc), "waivers.md")
+        fail(str(exc), "waivers.md", json_name="waivers")
         return
 
     try:
         league = connect(config)
         my_team = find_my_team(league, config)
     except (AuthError, LeagueNotFoundError) as exc:
-        fail(str(exc), "waivers.md")
+        fail(str(exc), "waivers.md", json_name="waivers")
         return
 
     week_override = (os.getenv("WEEK") or "").strip()
@@ -108,6 +109,7 @@ def main() -> None:
             f"({type(exc).__name__}: {exc})\n\n"
             "If this keeps happening, run the connection test first.",
             "waivers.md",
+            json_name="waivers",
         )
         return
 
@@ -180,7 +182,10 @@ def main() -> None:
                 continue
             suggestions.append((gain, candidate, weakest))
 
-    suggestions.sort(key=lambda row: -row[0])
+    # Sort by Add score, not by raw points gained. Points gained is the noisier
+    # of the two numbers, and ranking by it would put players this tool flags as
+    # regression candidates at the top of its own recommendation list.
+    suggestions.sort(key=lambda row: (-row[1].add_score, -row[0]))
 
     if not suggestions:
         report.note(
@@ -190,7 +195,7 @@ def main() -> None:
         )
     else:
         report.table(
-            ["Add", "Pos", "Add score", "Pts/gm", "Touches/gm", "Drop", "Gain/gm", "Suggested FAAB bid"],
+            ["Add", "Pos", "Add score", "Pts/gm", "Touches/gm", "Drop", "Gain/gm", "Suggested FAAB bid", "Notes"],
             [
                 [
                     candidate.name,
@@ -202,6 +207,7 @@ def main() -> None:
                     f"+{gain}",
                     suggest_faab_bid(candidate.add_score, candidate.percent_owned)
                     if league.settings.faab else "n/a, this league uses waiver priority",
+                    "; ".join(candidate.reasons) or "-",
                 ]
                 for gain, candidate, weakest in suggestions[:10]
             ],
@@ -246,6 +252,60 @@ def main() -> None:
         "Nothing was claimed or dropped. This tool only reads from ESPN. "
         "Place any claims yourself on ESPN's site."
     )
+
+    # --- Emit the same data as JSON for the web dashboard ----------------
+    def json_trend(t):
+        return {
+            "name": t.name,
+            "position": t.position,
+            "team": t.pro_team,
+            "add_score": t.add_score,
+            "opportunity": t.opportunity_percentile,
+            "production": t.production_percentile,
+            "touches_per_game": t.opportunities_per_game,
+            "points_per_game": t.recent_ppg,
+            "season_ppg": t.season_ppg,
+            "trend": t.trend,
+            "percent_owned": round(t.percent_owned, 1),
+            "injury": t.injury_status.title() if t.injury_status not in ("", "ACTIVE", "NORMAL") else "",
+            "on_bye": t.on_bye,
+            "reasons": t.reasons,
+        }
+
+    write_json("waivers", {
+        "ok": True,
+        "league_name": league.settings.name,
+        "team_name": my_team.team_name,
+        "scoring": scoring["label"],
+        "week": week,
+        "lookback_weeks": LOOKBACK_WEEKS,
+        "uses_faab": bool(league.settings.faab),
+        "weakest_roster_spots": [json_trend(t) for t in droppable],
+        "suggestions": [
+            {
+                "gain": gain,
+                "add": json_trend(candidate),
+                "drop": json_trend(weakest),
+                "faab_bid": suggest_faab_bid(candidate.add_score, candidate.percent_owned)
+                if league.settings.faab else "",
+            }
+            for gain, candidate, weakest in suggestions[:10]
+        ],
+        "by_position": {
+            # Players who cannot play this week sort to the bottom regardless of
+            # score. An OUT player heading a "best available" list is misleading,
+            # but hiding him entirely loses a useful stash candidate.
+            position: [
+                json_trend(t)
+                for t in sorted(
+                    by_position.get(position, []),
+                    key=lambda t: (t.injury_status in ("OUT", "INJURY_RESERVE", "SUSPENSION") or t.on_bye, -t.add_score),
+                )[:TOP_PER_POSITION]
+            ]
+            for position in SCAN_POSITIONS
+            if by_position.get(position)
+        },
+    })
 
     path = report.deliver("waivers.md")
     print(f"\nSaved to {path}")

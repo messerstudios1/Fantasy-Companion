@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>Fantasy Companion</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8F%88%3C/text%3E%3C/svg%3E">
+<style>
+/* ---------------------------------------------------------------------------
+   Palette. Dark first, since this gets used on a phone in the evening.
+   --------------------------------------------------------------------------- */
+:root {
+  --bg: #0e1013;
+  --surface: #16191f;
+  --surface-2: #1d212a;
+  --border: #272c37;
+  --text: #e9ecf1;
+  --muted: #929aa8;
+  --faint: #6b7280;
+
+  --qb: #a78bfa;
+  --rb: #4ade80;
+  --wr: #60a5fa;
+  --te: #fbbf24;
+  --k:  #94a3b8;
+  --dst:#f472b6;
+
+  --good: #4ade80;
+  --warn: #fbbf24;
+  --bad:  #f87171;
+  --hot:  #ff7a45;
+
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.18);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #f1f3f6;
+    --border: #e0e4ea;
+    --text: #14171c;
+    --muted: #5d6673;
+    --faint: #8b939f;
+
+    --qb: #7c3aed;
+    --rb: #16a34a;
+    --wr: #2563eb;
+    --te: #b45309;
+    --k:  #64748b;
+    --dst:#db2777;
+
+    --good: #16a34a;
+    --warn: #b45309;
+    --bad:  #dc2626;
+    --hot:  #ea580c;
+
+    --shadow: 0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.06);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-feature-settings: "tnum" 1, "cv05" 1;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.wrap { max-width: 760px; margin: 0 auto; padding: 0 14px 64px; }
+
+/* --- Header ---------------------------------------------------------- */
+header {
+  position: sticky; top: 0; z-index: 20;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding-top: env(safe-area-inset-top);
+}
+.head-inner {
+  max-width: 760px; margin: 0 auto; padding: 12px 14px 0;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.brand { flex: 1; min-width: 0; }
+.brand h1 {
+  margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -.01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.brand .sub {
+  margin-top: 2px; font-size: 12px; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.refresh {
+  flex: none; display: inline-flex; align-items: center; gap: 6px;
+  min-height: 36px; padding: 0 12px;
+  background: var(--surface-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 999px;
+  font: inherit; font-size: 13px; font-weight: 550;
+  cursor: pointer; text-decoration: none;
+}
+.refresh:active { transform: scale(.97); }
+.refresh.spin svg { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- Tabs ------------------------------------------------------------ */
+nav {
+  max-width: 760px; margin: 0 auto; padding: 10px 14px 0;
+  display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none;
+}
+nav::-webkit-scrollbar { display: none; }
+nav button {
+  flex: none; min-height: 40px; padding: 0 14px;
+  background: none; border: 0; border-bottom: 2px solid transparent;
+  color: var(--muted); font: inherit; font-size: 14px; font-weight: 550;
+  cursor: pointer; white-space: nowrap;
+}
+nav button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--text); }
+
+/* --- Generic blocks -------------------------------------------------- */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; margin: 12px 0;
+  box-shadow: var(--shadow);
+}
+.card h2 {
+  margin: 0 0 10px; font-size: 12px; font-weight: 650;
+  letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
+}
+.note {
+  border-left: 3px solid var(--border); padding: 10px 0 10px 12px;
+  color: var(--muted); font-size: 13px; margin: 12px 0;
+}
+.note.warn { border-color: var(--warn); color: var(--text); }
+.note.bad  { border-color: var(--bad);  color: var(--text); }
+.note.good { border-color: var(--good); color: var(--text); }
+.note strong { color: var(--text); }
+
+.empty { text-align: center; color: var(--faint); padding: 40px 16px; font-size: 14px; }
+
+/* --- Stat row -------------------------------------------------------- */
+.stats { display: grid; gap: 8px; }
+.stat {
+  background: var(--surface-2); border-radius: 10px; padding: 10px 12px;
+}
+.stat .k { font-size: 11px; color: var(--muted); letter-spacing: .03em; }
+.stat .v { font-size: 21px; font-weight: 640; letter-spacing: -.02em; margin-top: 2px; }
+.stat.hot { background: color-mix(in srgb, var(--hot) 18%, var(--surface-2)); }
+.stat.hot .v { color: var(--hot); }
+
+/* --- Position chips -------------------------------------------------- */
+.pos {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 34px; height: 20px; padding: 0 6px; border-radius: 5px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .05em;
+  color: #0b0d10; flex: none;
+}
+.pos.QB{background:var(--qb)} .pos.RB{background:var(--rb)} .pos.WR{background:var(--wr)}
+.pos.TE{background:var(--te)} .pos.K{background:var(--k)}  .pos.DST{background:var(--dst)}
+@media (prefers-color-scheme: light) { .pos { color: #fff; } }
+
+/* --- Filter pills ---------------------------------------------------- */
+.filters { display: flex; gap: 6px; overflow-x: auto; padding: 2px 8px 10px 0; scrollbar-width: none; }
+.filters::-webkit-scrollbar { display: none; }
+.filters button {
+  flex: none; min-height: 34px; padding: 0 13px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--muted); font: inherit; font-size: 13px; font-weight: 550; cursor: pointer;
+}
+.filters button[aria-pressed="true"] {
+  background: var(--text); color: var(--bg); border-color: var(--text);
+}
+
+/* --- Player rows ----------------------------------------------------- */
+.plist { display: flex; flex-direction: column; }
+.prow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 2px; border-bottom: 1px solid var(--border);
+}
+.prow:last-child { border-bottom: 0; }
+.prow.unavailable { opacity: .55; }
+.prank {
+  flex: none; width: 30px; text-align: right;
+  font-size: 13px; font-weight: 620; color: var(--faint);
+}
+.pmain { flex: 1; min-width: 0; }
+.pname {
+  font-size: 15px; font-weight: 560; letter-spacing: -.005em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pmeta { font-size: 12px; color: var(--muted); margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; }
+.pmeta .injury { color: var(--bad); font-weight: 550; }
+.pmeta .bye { color: var(--warn); font-weight: 550; }
+.pright { flex: none; text-align: right; }
+.pright .big { font-size: 15px; font-weight: 620; letter-spacing: -.01em; }
+.pright .small { font-size: 11px; color: var(--faint); margin-top: 1px; }
+
+/* --- Tier divider ---------------------------------------------------- */
+.tier {
+  display: flex; align-items: center; gap: 10px;
+  margin: 14px 0 4px; font-size: 11px; font-weight: 650;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--faint);
+}
+.tier::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+/* --- Urgency --------------------------------------------------------- */
+.urg { display: flex; align-items: baseline; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.urg:last-child { border-bottom: 0; }
+.urg .txt { flex: 1; font-size: 13px; color: var(--muted); }
+.urg .txt.alert { color: var(--hot); font-weight: 560; }
+.urg .n { font-size: 13px; font-weight: 620; color: var(--faint); }
+
+/* --- Swaps ----------------------------------------------------------- */
+.swap {
+  display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center;
+  background: var(--surface-2); border-radius: 10px; padding: 11px; margin-bottom: 8px;
+}
+.swap .side { min-width: 0; }
+.swap .lbl { font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: var(--faint); }
+.swap .nm { font-size: 14px; font-weight: 560; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.swap .pj { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.swap .arrow { color: var(--faint); font-size: 16px; }
+.swap .side.out .nm { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--faint); }
+.swap .side.in .nm { color: var(--good); }
+
+/* --- Waiver suggestion ----------------------------------------------- */
+.sugg { background: var(--surface-2); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+.sugg .top { display: flex; align-items: center; gap: 8px; }
+.sugg .nm { font-size: 15px; font-weight: 600; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sugg .gain { font-size: 13px; font-weight: 620; color: var(--good); }
+.sugg .body { font-size: 12.5px; color: var(--muted); margin-top: 6px; line-height: 1.55; }
+.sugg .body b { color: var(--text); font-weight: 560; }
+
+/* --- Bars ------------------------------------------------------------ */
+.bar { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+.bar .lb { font-size: 10.5px; color: var(--faint); width: 62px; flex: none; letter-spacing: .03em; }
+.bar .track { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.bar .fill { height: 100%; border-radius: 3px; }
+.bar .vl { font-size: 11px; color: var(--muted); width: 26px; text-align: right; flex: none; }
+
+footer { text-align: center; color: var(--faint); font-size: 11.5px; padding: 28px 14px 10px; line-height: 1.7; }
+footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-inner">
+    <div class="brand">
+      <h1 id="leagueName">Fantasy Companion</h1>
+      <div class="sub" id="subLine">Loading…</div>
+    </div>
+    <button class="refresh" id="refreshBtn" title="Reload the latest data">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+        <path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/>
+      </svg>
+      Reload
+    </button>
+  </div>
+  <nav id="tabs">
+    <button data-tab="draft" aria-selected="true">Draft</button>
+    <button data-tab="lineup" aria-selected="false">Lineup</button>
+    <button data-tab="waivers" aria-selected="false">Waivers</button>
+  </nav>
+</header>
+
+<div class="wrap">
+  <main id="view"><div class="empty">Loading…</div></main>
+  <footer>
+    Read-only. Nothing here can change your team.<br>
+    <a id="actionsLink" href="#" target="_blank" rel="noopener">Run a refresh on GitHub Actions →</a>
+  </footer>
+</div>
+
+<script>
+/* ===========================================================================
+   CONFIG
+   Change these only if the repository is renamed or moved.
+   =========================================================================== */
+const CONFIG = {
+  owner:  "messerstudios1",
+  repo:   "Fantasy-Companion",
+  branch: "main",
+};
+
+const ACTIONS_URL = `https://github.com/${CONFIG.owner}/${CONFIG.repo}/actions`;
+document.getElementById("actionsLink").href = ACTIONS_URL;
+
+/* ---------------------------------------------------------------------------
+   Loading data.
+
+   Two sources, tried in order:
+
+   1. The GitHub API. This returns the file's CURRENT contents the instant a
+      workflow commits it, with no caching. That matters during a draft: the
+      Pages site itself takes another 30-60 seconds to rebuild after a commit,
+      and the API skips that wait entirely.
+   2. The file served by Pages alongside this page. Used if the API is
+      unreachable or rate limited (60 requests per hour for anonymous users,
+      which is far more than this page needs).
+   --------------------------------------------------------------------------- */
+async function loadData(name) {
+  const apiUrl = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}`
+               + `/contents/docs/data/${name}.json?ref=${CONFIG.branch}`;
+  try {
+    const res = await fetch(apiUrl, { headers: { Accept: "application/vnd.github.raw+json" } });
+    if (res.ok) return await res.json();
+  } catch (e) { /* fall through to the Pages copy */ }
+
+  try {
+    const res = await fetch(`data/${name}.json?t=${Date.now()}`);
+    if (res.ok) return await res.json();
+  } catch (e) { /* no data at all */ }
+
+  return null;
+}
+
+/* --- Small helpers ---------------------------------------------------- */
+const el = (tag, cls, html) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (html !== undefined) n.innerHTML = html;
+  return n;
+};
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+function ago(iso) {
+  if (!iso) return "unknown";
+  const secs = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (secs < 45) return "just now";
+  if (secs < 90) return "1 min ago";
+  if (secs < 3600) return `${Math.round(secs / 60)} min ago`;
+  if (secs < 7200) return "1 hour ago";
+  if (secs < 86400) return `${Math.round(secs / 3600)} hours ago`;
+  return `${Math.round(secs / 86400)} days ago`;
+}
+const minutesOld = (iso) => iso ? (Date.now() - new Date(iso).getTime()) / 60000 : Infinity;
+
+/* ESPN writes team defenses as "D/ST". A slash cannot go in a CSS class name
+   (it would split into two classes and match neither), so strip it for the
+   class while keeping the original text as the visible label. */
+/* Column count comes from the item count, not from auto-fit. Auto-fit laid four
+   stats out as 3 + 1, which reads as a mistake rather than a layout. */
+function statsBlock(items) {
+  const cols = items.length === 4 ? 2 : Math.max(1, Math.min(3, items.length));
+  const cells = items.map(i =>
+    `<div class="stat ${i.hot ? "hot" : ""}"><div class="k">${esc(i.k)}</div>
+     <div class="v">${esc(i.v)}</div></div>`).join("");
+  return `<div class="stats" style="grid-template-columns:repeat(${cols},1fr)">${cells}</div>`;
+}
+
+function posChip(p) {
+  const cls = String(p ?? "").replace(/[^A-Za-z]/g, "").toUpperCase();
+  return `<span class="pos ${cls}">${esc(p)}</span>`;
+}
+
+function errorCard(data, what) {
+  if (data === null) {
+    return `<div class="empty">No data yet.<br><br>Run <b>${esc(what)}</b> from the
+      <a href="${ACTIONS_URL}" target="_blank" rel="noopener">Actions tab</a>, then reload this page.</div>`;
+  }
+  if (data.ok === false) {
+    return `<div class="note bad"><strong>The last run failed.</strong><br><br>
+      <span style="white-space:pre-wrap;font-size:12.5px">${esc(data.error)}</span></div>`;
+  }
+  return null;
+}
+
+/* ===========================================================================
+   DRAFT TAB
+   =========================================================================== */
+function renderDraft(d) {
+  const bad = errorCard(d, "2. Draft Board");
+  if (bad) return bad;
+
+  let h = "";
+  const s = d.draft_state || {};
+  const onClock = s.picks_until_my_turn === 0;
+
+  /* Staleness matters more here than anywhere else. A board that is quietly
+     ten minutes old during a live draft is worse than no board at all. */
+  const age = minutesOld(d.generated_at);
+  if (age > 8) {
+    h += `<div class="note warn"><strong>This board is ${ago(d.generated_at)}.</strong>
+      Picks have almost certainly happened since. Run a refresh from the
+      <a href="${ACTIONS_URL}" target="_blank" rel="noopener">Actions tab</a>, then reload.</div>`;
+  }
+
+  const draftStats = [
+    { k: "Round", v: s.current_round ?? "–" },
+    { k: "Picks made", v: s.picks_made ?? "–" },
+  ];
+  if (s.my_slot) draftStats.push({ k: "Your slot", v: s.my_slot });
+  if (s.picks_until_my_turn !== null && s.picks_until_my_turn !== undefined) {
+    draftStats.push({
+      k: onClock ? "Status" : "Until your pick",
+      v: onClock ? "You're up" : s.picks_until_my_turn,
+      hot: onClock,
+    });
+  }
+  h += `<div class="card"><h2>Draft status</h2>${statsBlock(draftStats)}</div>`;
+
+  if (!d.rankings_fresh) {
+    h += `<div class="note warn"><strong>Rankings are not live.</strong> ${esc(d.rankings_source)}</div>`;
+  }
+
+  /* Urgency is the section that actually changes decisions, so it sits above
+     the player list rather than below it. */
+  if (d.positional_urgency?.length) {
+    h += `<div class="card"><h2>Positional urgency</h2>`;
+    for (const u of d.positional_urgency) {
+      const alert = /only 1 left|Getting thin/i.test(u.summary);
+      h += `<div class="urg">${posChip(u.position)}
+        <span class="txt ${alert ? "alert" : ""}">${esc(u.summary)}</span>
+        <span class="n">${u.count}</span></div>`;
+    }
+    h += `<div class="note" style="margin-bottom:0">Players in a tier are roughly interchangeable.
+      Plenty left means you can safely draft elsewhere and come back. Down to one means
+      that quality level disappears with the next pick.</div></div>`;
+  }
+
+  if (d.needs?.length) {
+    h += `<div class="card"><h2>Slots you still need</h2>
+      <div style="font-size:13.5px;line-height:1.7">${d.needs.map(esc).join("<br>")}</div>
+      <div class="note" style="margin-bottom:0">Needing a position is not a reason to reach for
+      a bad player at it. Take the best player available unless the gap is small.</div></div>`;
+  }
+
+  /* Best available, filterable, grouped by tier. */
+  h += `<div class="card"><h2>Best available</h2>
+    <div class="filters" id="posFilter">
+      <button data-p="ALL" aria-pressed="true">All</button>
+      ${["RB","WR","TE","QB","K","DST"].map(p => `<button data-p="${p}" aria-pressed="false">${p}</button>`).join("")}
+    </div>
+    <div class="plist" id="availList"></div></div>`;
+
+  if (d.my_roster?.length) {
+    h += `<div class="card"><h2>Your roster (${d.my_roster.length})</h2><div class="plist">`;
+    for (const p of d.my_roster) {
+      h += `<div class="prow"><div class="prank"></div>${posChip(p.position)}
+        <div class="pmain"><div class="pname">${esc(p.name)}</div>
+        <div class="pmeta"><span>${esc(p.team)}</span></div></div></div>`;
+    }
+    h += `</div></div>`;
+  }
+
+  if (d.recent_picks?.length) {
+    h += `<div class="card"><h2>Recent picks</h2>
+      <div class="note" style="margin-top:0">If these match picks you just watched happen,
+      the board above is current.</div><div class="plist">`;
+    for (const p of [...d.recent_picks].reverse()) {
+      h += `<div class="prow"><div class="prank">${p.round}.${String(p.pick).padStart(2,"0")}</div>
+        <div class="pmain"><div class="pname">${esc(p.player)}</div>
+        <div class="pmeta"><span>${esc(p.team)}${p.is_mine ? " · you" : ""}</span></div></div></div>`;
+    }
+    h += `</div></div>`;
+  }
+
+  return h;
+}
+
+let DRAFT_DATA = null;
+let POS_FILTER = "ALL";
+
+function paintAvailable() {
+  const list = document.getElementById("availList");
+  if (!list || !DRAFT_DATA?.available) return;
+
+  const players = DRAFT_DATA.available.filter(p => POS_FILTER === "ALL" || p.position === POS_FILTER);
+  if (!players.length) { list.innerHTML = `<div class="empty">Nobody left at this position.</div>`; return; }
+
+  let h = "", lastTier = null;
+  for (const p of players.slice(0, 60)) {
+    /* Tier dividers only make sense inside one position. Across positions the
+       tier numbers are not comparable, so we suppress them on the All view. */
+    if (POS_FILTER !== "ALL" && p.tier && p.tier !== lastTier) {
+      h += `<div class="tier">Tier ${p.tier}</div>`;
+      lastTier = p.tier;
+    }
+    const meta = [];
+    meta.push(`<span>${esc(p.team || "FA")}</span>`);
+    if (p.position_rank) meta.push(`<span>${esc(p.position_rank)}</span>`);
+    if (p.bye_week) meta.push(`<span>bye ${p.bye_week}</span>`);
+    if (p.injury) meta.push(`<span class="injury">${esc(p.injury)}</span>`);
+
+    h += `<div class="prow">
+      <div class="prank">${p.rank}</div>
+      ${posChip(p.position)}
+      <div class="pmain">
+        <div class="pname">${esc(p.name)}</div>
+        <div class="pmeta">${meta.join("")}</div>
+      </div>
+      <div class="pright">
+        ${p.espn_projection !== null && p.espn_projection !== undefined
+          ? `<div class="big">${p.espn_projection}</div><div class="small">ESPN proj</div>` : ""}
+      </div></div>`;
+  }
+  list.innerHTML = h;
+}
+
+/* ===========================================================================
+   LINEUP TAB
+   =========================================================================== */
+function renderLineup(d) {
+  const bad = errorCard(d, "3. Weekly Check");
+  if (bad) return bad;
+
+  let h = "";
+
+  h += `<div class="card"><h2>Week ${d.week} vs ${esc(d.opponent_name || "opponent")}</h2>
+    ${statsBlock([
+      { k: "Current", v: d.current_total },
+      { k: "Best possible", v: d.optimal_total },
+      { k: "On the table", v: `${d.gain > 0 ? "+" : ""}${d.gain}`, hot: d.gain >= 1 },
+    ])}</div>`;
+
+  if (d.zero_point_starters?.length) {
+    h += `<div class="note bad"><strong>You are starting ${d.zero_point_starters.length}
+      player(s) who will score exactly zero.</strong><br>` +
+      d.zero_point_starters.map(p => `${esc(p.name)} (${esc(p.position)}): ${esc(p.flag)}`).join("<br>") +
+      `</div>`;
+  }
+
+  if (d.is_optimal) {
+    h += `<div class="note good"><strong>Your lineup is already optimal.</strong>
+      The best available change is worth ${d.gain} projected points, which is inside the
+      margin of error on these projections. Leave it alone.</div>`;
+  } else if (d.swaps?.length) {
+    h += `<div class="card"><h2>Make these swaps</h2>`;
+    for (const s of d.swaps) {
+      h += `<div class="swap">
+        <div class="side out"><div class="lbl">Bench</div>
+          <div class="nm">${esc(s.out?.name || "–")}</div>
+          <div class="pj">${s.out ? s.out.projected + " proj" : ""}</div></div>
+        <div class="arrow">→</div>
+        <div class="side in"><div class="lbl">Start</div>
+          <div class="nm">${esc(s.in?.name || "–")}</div>
+          <div class="pj">${s.in ? s.in.projected + " proj" : ""}</div></div>
+      </div>`;
+    }
+    h += `<div class="note" style="margin-bottom:0">Shown as pairs for readability. On ESPN you
+      move players one at a time; you just need to end up with the lineup below.</div></div>`;
+  }
+
+  if (d.questionable_starters?.length) {
+    h += `<div class="note warn"><strong>Check before kickoff.</strong> Listed as questionable,
+      meaning the team decides shortly before the game:<br>` +
+      d.questionable_starters.map(p => `${esc(p.name)} (${esc(p.position)})`).join("<br>") + `</div>`;
+  }
+
+  h += `<div class="card"><h2>Recommended lineup</h2><div class="plist">`;
+  for (const p of d.recommended || []) {
+    const meta = [`<span>${esc(p.opponent)}</span>`];
+    if (p.on_bye) meta.push(`<span class="bye">BYE</span>`);
+    else if (p.injury) meta.push(`<span class="injury">${esc(p.injury)}</span>`);
+    h += `<div class="prow"><div class="prank" style="width:52px;font-size:11px">${esc(p.slot)}</div>
+      ${posChip(p.position)}
+      <div class="pmain"><div class="pname">${esc(p.name)}</div><div class="pmeta">${meta.join("")}</div></div>
+      <div class="pright"><div class="big">${p.projected}</div></div></div>`;
+  }
+  h += `</div></div>`;
+
+  if (d.recommended_bench?.length) {
+    h += `<div class="card"><h2>Bench</h2><div class="plist">`;
+    for (const p of d.recommended_bench) {
+      const meta = [`<span>${esc(p.opponent)}</span>`];
+      if (p.on_bye) meta.push(`<span class="bye">BYE</span>`);
+      else if (p.injury) meta.push(`<span class="injury">${esc(p.injury)}</span>`);
+      h += `<div class="prow"><div class="prank"></div>${posChip(p.position)}
+        <div class="pmain"><div class="pname">${esc(p.name)}</div><div class="pmeta">${meta.join("")}</div></div>
+        <div class="pright"><div class="big" style="color:var(--muted)">${p.projected}</div></div></div>`;
+    }
+    h += `</div></div>`;
+  }
+
+  return h;
+}
+
+/* ===========================================================================
+   WAIVERS TAB
+   =========================================================================== */
+function bar(label, value, color) {
+  return `<div class="bar"><span class="lb">${label}</span>
+    <span class="track"><span class="fill" style="width:${Math.max(2, value)}%;background:${color}"></span></span>
+    <span class="vl">${Math.round(value)}</span></div>`;
+}
+
+function renderWaivers(d) {
+  const bad = errorCard(d, "3. Weekly Check");
+  if (bad) return bad;
+
+  let h = "";
+
+  h += `<div class="note"><strong>How the Add score works.</strong> It weights
+    <b>opportunity</b> (carries and targets per game) at 60% and <b>production</b>
+    (fantasy points) at 40%. Coaches decide opportunity and it is stable week to week.
+    Points are distorted by touchdowns, which are close to random. High opportunity with
+    low production is the most interesting profile on this page: the usage is already
+    there and the points have not caught up.</div>`;
+
+  if (d.suggestions?.length) {
+    h += `<div class="card"><h2>Suggested claims</h2>`;
+    for (const s of d.suggestions) {
+      h += `<div class="sugg">
+        <div class="top">${posChip(s.add.position)}
+          <span class="nm">${esc(s.add.name)}</span>
+          <span class="gain">+${s.gain}/gm</span></div>
+        <div class="body">
+          Drop <b>${esc(s.drop.name)}</b>.
+          ${s.add.touches_per_game} touches and ${s.add.points_per_game} points per game
+          over the last ${d.lookback_weeks} weeks. Owned in ${s.add.percent_owned}% of leagues.
+          ${s.faab_bid ? `<br>Suggested bid: <b>${esc(s.faab_bid)}</b>` : ""}
+          ${s.add.reasons?.length ? `<br><span style="color:var(--warn)">${esc(s.add.reasons.join("; "))}</span>` : ""}
+        </div>
+        ${bar("Opportunity", s.add.opportunity, "var(--rb)")}
+        ${bar("Production", s.add.production, "var(--wr)")}
+      </div>`;
+    }
+    h += `</div>`;
+  } else {
+    h += `<div class="note good"><strong>No clear upgrades this week.</strong>
+      Every free agent worth adding is no better than what you already have.
+      Doing nothing is a legitimate and often correct move.</div>`;
+  }
+
+  if (d.weakest_roster_spots?.length) {
+    h += `<div class="card"><h2>Your weakest spots</h2><div class="plist">`;
+    for (const p of d.weakest_roster_spots) {
+      const meta = [`<span>${esc(p.team)}</span>`, `<span>${p.touches_per_game} touches/gm</span>`];
+      if (p.injury) meta.push(`<span class="injury">${esc(p.injury)}</span>`);
+      h += `<div class="prow"><div class="prank"></div>${posChip(p.position)}
+        <div class="pmain"><div class="pname">${esc(p.name)}</div><div class="pmeta">${meta.join("")}</div></div>
+        <div class="pright"><div class="big">${p.points_per_game}</div><div class="small">pts/gm</div></div></div>`;
+    }
+    h += `</div><div class="note bad" style="margin-bottom:0"><strong>Be careful dropping injured
+      players.</strong> A good player who is hurt but will return is usually worth more than the
+      free agent replacing him.</div></div>`;
+  }
+
+  for (const [position, players] of Object.entries(d.by_position || {})) {
+    h += `<div class="card"><h2>Best available ${position}</h2><div class="plist">`;
+    for (const p of players) {
+      const meta = [`<span>${esc(p.team)}</span>`, `<span>${p.percent_owned}% owned</span>`];
+      if (p.on_bye) meta.push(`<span class="bye">BYE</span>`);
+      else if (p.injury) meta.push(`<span class="injury">${esc(p.injury)}</span>`);
+      const unusable = p.on_bye || /out|reserve|suspension/i.test(p.injury || "");
+      h += `<div class="prow ${unusable ? "unavailable" : ""}" style="align-items:flex-start">
+        <div class="prank" style="padding-top:2px">${Math.round(p.add_score)}</div>
+        ${posChip(p.position)}
+        <div class="pmain"><div class="pname">${esc(p.name)}</div>
+          <div class="pmeta">${meta.join("")}</div>
+          ${bar("Opportunity", p.opportunity, "var(--rb)")}
+          ${bar("Production", p.production, "var(--wr)")}
+          ${p.reasons?.length ? `<div class="pmeta" style="margin-top:5px">${esc(p.reasons.join("; "))}</div>` : ""}
+        </div></div>`;
+    }
+    h += `</div></div>`;
+  }
+
+  return h;
+}
+
+/* ===========================================================================
+   SHELL
+   =========================================================================== */
+const CACHE = {};
+let TAB = "draft";
+
+async function show(tab) {
+  TAB = tab;
+  for (const b of document.querySelectorAll("#tabs button")) {
+    b.setAttribute("aria-selected", String(b.dataset.tab === tab));
+  }
+
+  const view = document.getElementById("view");
+  if (!(tab in CACHE)) {
+    view.innerHTML = `<div class="empty">Loading…</div>`;
+    CACHE[tab] = await loadData(tab);
+  }
+  const data = CACHE[tab];
+
+  if (tab === "draft") {
+    DRAFT_DATA = data;
+    view.innerHTML = renderDraft(data);
+    const filter = document.getElementById("posFilter");
+    if (filter) {
+      filter.addEventListener("click", (e) => {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+        POS_FILTER = btn.dataset.p;
+        for (const b of filter.querySelectorAll("button")) {
+          b.setAttribute("aria-pressed", String(b.dataset.p === POS_FILTER));
+        }
+        paintAvailable();
+      });
+    }
+    paintAvailable();
+  } else if (tab === "lineup") {
+    view.innerHTML = renderLineup(data);
+  } else {
+    view.innerHTML = renderWaivers(data);
+  }
+
+  /* The header always describes the tab you are actually looking at. */
+  if (data && data.ok !== false) {
+    document.getElementById("leagueName").textContent = data.league_name || "Fantasy Companion";
+    document.getElementById("subLine").textContent =
+      [data.team_name, (data.scoring || "").split(" (")[0], `updated ${ago(data.generated_at)}`]
+        .filter(Boolean).join(" · ");
+  } else {
+    document.getElementById("subLine").textContent = "No data for this tab yet";
+  }
+  window.scrollTo({ top: 0 });
+}
+
+document.getElementById("tabs").addEventListener("click", (e) => {
+  const btn = e.target.closest("button");
+  if (btn) show(btn.dataset.tab);
+});
+
+document.getElementById("refreshBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("refreshBtn");
+  btn.classList.add("spin");
+  for (const key of Object.keys(CACHE)) delete CACHE[key];
+  await show(TAB);
+  btn.classList.remove("spin");
+});
+
+/* Coming back to the tab after switching apps should not show stale data. */
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && CACHE[TAB] &&
+      minutesOld(CACHE[TAB].generated_at) > 2) {
+    delete CACHE[TAB];
+    show(TAB);
+  }
+});
+
+show("draft");
+</script>
+</body>
+</html>

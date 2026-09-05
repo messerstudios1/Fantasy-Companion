@@ -43,7 +43,7 @@ on:
         default: true
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 concurrency:
@@ -99,6 +99,32 @@ jobs:
           WEEK: ${{ inputs.week }}
           TEAM_NAME: ${{ inputs.team_name }}
         run: python scripts/waiver_scanner.py
+
+      # Commits the JSON files the dashboard reads. Uses [skip ci] so a data
+      # commit does not kick off the test workflow every time you refresh.
+      - name: Publish data to the dashboard
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/*.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No dashboard data changed, nothing to publish."
+            exit 0
+          fi
+          git commit -m "Update dashboard data [skip ci]"
+          # Two runs finishing at once would collide on push, so rebase and retry.
+          for attempt in 1 2 3 4 5; do
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              echo "Published."
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt). Rebasing on the latest main."
+            git pull --rebase origin "${GITHUB_REF_NAME}" || true
+            sleep 3
+          done
+          echo "Could not publish dashboard data after 5 attempts."
+          exit 1
 
       - name: Save the reports as downloadable files
         if: always()

@@ -46,6 +46,7 @@ from fantasy.lineup import (
     optimize,
     total_projected,
 )
+from fantasy.export import write_json
 from fantasy.output import Report, fail
 
 # Below this many projected points, a swap is not worth the risk of being
@@ -85,14 +86,14 @@ def main() -> None:
     try:
         config = load_config()
     except ConfigError as exc:
-        fail(str(exc), "lineup.md")
+        fail(str(exc), "lineup.md", json_name="lineup")
         return
 
     try:
         league = connect(config)
         my_team = find_my_team(league, config)
     except (AuthError, LeagueNotFoundError) as exc:
-        fail(str(exc), "lineup.md")
+        fail(str(exc), "lineup.md", json_name="lineup")
         return
 
     week_override = (os.getenv("WEEK") or "").strip()
@@ -107,6 +108,7 @@ def main() -> None:
             "season has not started. Try setting WEEK to a week that has a\n"
             "game scheduled.",
             "lineup.md",
+            json_name="lineup",
         )
         return
 
@@ -222,6 +224,50 @@ def main() -> None:
         "Nothing was changed in your league. This tool only reads. "
         "Make any swaps yourself on ESPN."
     )
+
+    # --- Emit the same data as JSON for the web dashboard ----------------
+    def json_candidate(candidate, slot=None):
+        return {
+            "slot": slot if slot is not None else candidate.current_slot,
+            "name": candidate.name,
+            "position": candidate.position,
+            "projected": round(candidate.effective_projection, 1),
+            "raw_projection": round(float(candidate.projected or 0), 1),
+            "opponent": candidate.opponent,
+            "injury": candidate.injury_status.title() if candidate.injury_status not in ("", "ACTIVE", "NORMAL") else "",
+            "on_bye": candidate.on_bye,
+            "flag": candidate.flag(),
+        }
+
+    write_json("lineup", {
+        "ok": True,
+        "league_name": league.settings.name,
+        "team_name": my_team.team_name,
+        "opponent_name": getattr(opponent_team, "team_name", ""),
+        "scoring": scoring["label"],
+        "week": week,
+        "current_total": current_total,
+        "optimal_total": optimal_total,
+        "gain": gain,
+        "is_optimal": gain < MEANINGFUL_GAIN,
+        "swaps": [
+            {
+                "out": json_candidate(to_bench[i]) if i < len(to_bench) else None,
+                "in": json_candidate(to_start[i]) if i < len(to_start) else None,
+            }
+            for i in range(max(len(to_bench), len(to_start)))
+        ],
+        "zero_point_starters": [json_candidate(c) for c in broken],
+        "questionable_starters": [json_candidate(c) for c in questionable],
+        "recommended": [json_candidate(c, slot) for slot, c in optimal if c],
+        "empty_slots": [slot for slot, c in optimal if not c],
+        "recommended_bench": [
+            json_candidate(c) for c in sorted(optimal_bench, key=lambda c: -c.effective_projection)
+        ],
+        "current": [
+            json_candidate(c) for c in sorted(current_starters, key=lambda c: c.current_slot)
+        ],
+    })
 
     path = report.deliver("lineup.md")
     print(f"\nSaved to {path}")

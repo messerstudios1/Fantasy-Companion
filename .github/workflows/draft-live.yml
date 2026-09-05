@@ -1,43 +1,45 @@
 # ---------------------------------------------------------------------------
-# LIVE DRAFT BOARD
+# LIVE DRAFT AUTO-REFRESH
 #
-# What this is: your draft-day sidekick. Every time you click "Run workflow"
-# it re-checks who has been drafted and shows you the best players left.
+# Refreshes the draft board every 5 minutes so the dashboard updates without
+# you tapping anything. Meant to be switched on for one evening only.
 #
-# How to use it during your draft:
-#   1. Open the "Actions" tab of this repo in a browser tab and leave it open.
-#   2. Click "2. Draft Board (run this during your draft)".
-#   3. Click "Run workflow" -> "Run workflow". Takes roughly 40 seconds.
-#   4. Click into the run. The board appears on the run's summary page.
-#   5. Repeat whenever you want a refresh. Clicking it again cancels any run
-#      still in progress, so you always get current data.
+# HOW TO SWITCH IT ON (about 20 seconds, in a browser)
+#   1. Repository Settings > Secrets and variables > Actions
+#   2. Click the "Variables" tab (NOT Secrets)
+#   3. New repository variable
+#        Name:  DRAFT_MODE
+#        Value: on
+#   4. Save. It starts refreshing within a few minutes.
 #
-# Tip: keep the previous run's summary open in a second tab so you always
-# have a list on screen while the new one builds.
+# HOW TO SWITCH IT OFF (do this after your draft)
+#   Same page, edit DRAFT_MODE to anything other than "on", or delete it.
+#   Leaving it on for a whole season would spam your commit history.
+#
+# HONEST CAVEAT: GitHub throttles 5 minute schedules harder than any other
+# interval, and delays them further when their servers are busy. Expect a
+# refresh every 5 to 15 minutes in practice, not reliably every 5. Treat this
+# as a background top-up and still trigger a manual run when you want the
+# board current for your own pick.
 # ---------------------------------------------------------------------------
-name: 2. Draft Board (run this during your draft)
+name: 5. Live draft auto-refresh (draft night only)
 
 on:
+  schedule:
+    - cron: "*/5 * * * *"
   workflow_dispatch:
-    inputs:
-      season_year:
-        description: "Season year"
-        required: false
-        default: "2026"
-      team_name:
-        description: "Optional: your exact ESPN team name, only if auto-detect fails"
-        required: false
-        default: ""
 
 permissions:
   contents: write
 
 concurrency:
   group: draft-board
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  board:
+  refresh:
+    # The gate. Without DRAFT_MODE set to "on", this does nothing at all.
+    if: vars.DRAFT_MODE == 'on'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -54,8 +56,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Keeps the last successful rankings download around between runs, so
-      # if the rankings site goes down mid-draft we still have real data.
       - name: Restore cached rankings
         uses: actions/cache@v4
         with:
@@ -69,12 +69,9 @@ jobs:
           LEAGUE_ID: ${{ secrets.LEAGUE_ID }}
           ESPN_S2: ${{ secrets.ESPN_S2 }}
           SWID: ${{ secrets.SWID }}
-          SEASON_YEAR: ${{ inputs.season_year }}
-          TEAM_NAME: ${{ inputs.team_name }}
+          SEASON_YEAR: "2026"
         run: python scripts/draft_board.py
 
-      # Commits the JSON files the dashboard reads. Uses [skip ci] so a data
-      # commit does not kick off the test workflow every time you refresh.
       - name: Publish data to the dashboard
         if: always()
         run: |
@@ -85,8 +82,7 @@ jobs:
             echo "No dashboard data changed, nothing to publish."
             exit 0
           fi
-          git commit -m "Update dashboard data [skip ci]"
-          # Two runs finishing at once would collide on push, so rebase and retry.
+          git commit -m "Update draft board [skip ci]"
           for attempt in 1 2 3 4 5; do
             if git push origin "HEAD:${GITHUB_REF_NAME}"; then
               echo "Published."
@@ -98,11 +94,3 @@ jobs:
           done
           echo "Could not publish dashboard data after 5 attempts."
           exit 1
-
-      - name: Save the board as a downloadable file
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: draft-board
-          path: output/*.md
-          if-no-files-found: ignore
