@@ -290,7 +290,20 @@ docs/brand/mark.svg        Two colour, primary
 docs/brand/mark-mono.svg   Single colour, for tiny sizes and one-colour print
 docs/brand/logo.svg        Horizontal lockup
 docs/brand/tokens.css      Every token. The source of truth.
+
+docs/favicon.svg           Small-size optical variant of the mark
+docs/favicon.ico           16/32/48/64, for browsers that ignore SVG icons
+docs/apple-touch-icon.png  180px on an opaque ground, for iOS home screens
+docs/icon-192.png          PWA icon
+docs/icon-512.png          PWA icon, also used maskable
+docs/site.webmanifest      Makes "Add to Home Screen" name it properly
 ```
+
+The mark ships in two cuts. Above roughly 32px it uses the display version.
+Below that, the third bar sits at 42% opacity and dissolves into the
+background, so favicons use an optically adjusted cut with less padding,
+thicker bars, and the lower two lifted to 92% and 62%. Same three shapes,
+same lean.
 
 ---
 
