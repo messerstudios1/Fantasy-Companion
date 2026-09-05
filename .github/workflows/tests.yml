@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------------------
+# OFFLINE TESTS
+#
+# Runs the logic tests against fake data. No ESPN cookies involved, so this
+# can never fail because your credentials expired. If this goes red, real
+# code is broken.
+#
+# Runs automatically on every push, and you can run it manually.
+# ---------------------------------------------------------------------------
+name: 4. Run offline tests
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lineup optimizer tests
+        run: python tests/lineup_test.py
+
+      - name: Waiver scanner tests
+        run: python tests/waivers_test.py
+
+      - name: Draft board end-to-end test
+        run: python tests/offline_smoke_test.py
