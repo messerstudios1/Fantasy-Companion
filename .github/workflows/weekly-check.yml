@@ -1,0 +1,157 @@
+# ---------------------------------------------------------------------------
+# WEEKLY CHECK: lineup optimizer + waiver wire scanner
+#
+# This is the hands-off one. It runs on a schedule with nobody watching, and
+# opens a GitHub Issue with the results so you get an email about it.
+#
+# SCHEDULE (times are UTC, which is how GitHub works)
+#   Sunday 15:00 UTC  = 11am US Eastern / 8am Pacific, before the early games
+#   Tuesday 14:00 UTC = 10am US Eastern / 7am Pacific, after Monday night
+#
+# IMPORTANT: GitHub's scheduler does NOT adjust for daylight saving time.
+# These will shift by an hour relative to your clock in early November. If
+# that matters, edit the numbers below. Also note that GitHub delays
+# scheduled runs when their servers are busy, sometimes by 30+ minutes, so
+# do not rely on this to the minute.
+#
+# You can also run it any time from the Actions tab.
+# ---------------------------------------------------------------------------
+name: 3. Weekly Check (lineup + waivers)
+
+on:
+  schedule:
+    - cron: "0 15 * * 0"   # Sundays, before games
+    - cron: "0 14 * * 2"   # Tuesdays, before waivers process
+  workflow_dispatch:
+    inputs:
+      season_year:
+        description: "Season year"
+        required: false
+        default: "2026"
+      week:
+        description: "Week number (leave blank for the current week)"
+        required: false
+        default: ""
+      team_name:
+        description: "Optional: your exact ESPN team name, only if auto-detect fails"
+        required: false
+        default: ""
+      open_issue:
+        description: "Open a GitHub issue with the results (emails you)"
+        type: boolean
+        required: false
+        default: true
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: weekly-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore cached rankings
+        uses: actions/cache@v4
+        with:
+          path: data/rankings_cache.json
+          key: rankings-${{ github.run_id }}
+          restore-keys: |
+            rankings-
+
+      - name: Lineup optimizer
+        id: lineup
+        env:
+          LEAGUE_ID: ${{ secrets.LEAGUE_ID }}
+          ESPN_S2: ${{ secrets.ESPN_S2 }}
+          SWID: ${{ secrets.SWID }}
+          SEASON_YEAR: ${{ inputs.season_year || '2026' }}
+          WEEK: ${{ inputs.week }}
+          TEAM_NAME: ${{ inputs.team_name }}
+        run: python scripts/lineup_optimizer.py
+
+      # Runs even if the lineup step failed, so one broken tool does not hide
+      # the other one's results.
+      - name: Waiver wire scan
+        if: always()
+        env:
+          LEAGUE_ID: ${{ secrets.LEAGUE_ID }}
+          ESPN_S2: ${{ secrets.ESPN_S2 }}
+          SWID: ${{ secrets.SWID }}
+          SEASON_YEAR: ${{ inputs.season_year || '2026' }}
+          WEEK: ${{ inputs.week }}
+          TEAM_NAME: ${{ inputs.team_name }}
+        run: python scripts/waiver_scanner.py
+
+      - name: Save the reports as downloadable files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-reports
+          path: output/*.md
+          if-no-files-found: ignore
+
+      # Opening an issue is how the results actually reach you. GitHub emails
+      # you when an issue is opened on your own repo, so a scheduled run that
+      # nobody is watching still gets your attention.
+      - name: Open an issue with the results
+        if: always() && (github.event_name == 'schedule' || inputs.open_issue)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const files = ['lineup.md', 'waivers.md', 'error.md'];
+            let body = '';
+            for (const file of files) {
+              const full = path.join('output', file);
+              if (fs.existsSync(full)) {
+                body += fs.readFileSync(full, 'utf8') + '\n\n---\n\n';
+              }
+            }
+
+            if (!body) {
+              body = 'The run produced no report files. Check the run logs:\n' +
+                     `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}` +
+                     `/actions/runs/${context.runId}`;
+            }
+
+            body += `\n_[View the full run](${context.serverUrl}/${context.repo.owner}` +
+                    `/${context.repo.repo}/actions/runs/${context.runId})_\n`;
+
+            // GitHub rejects issue bodies over 65536 characters.
+            if (body.length > 60000) {
+              body = body.slice(0, 60000) +
+                     '\n\n_...truncated. Download the full report from the run artifacts._\n';
+            }
+
+            const stamp = new Date().toISOString().slice(0, 10);
+            const failed = '${{ job.status }}' === 'failure';
+            const title = failed
+              ? `Weekly check FAILED - ${stamp}`
+              : `Weekly check - ${stamp}`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+            });

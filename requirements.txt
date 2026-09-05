@@ -1,0 +1,6 @@
+# ESPN Fantasy Football API wrapper (unofficial, community maintained)
+espn-api==0.46.0
+# HTTP client used for fetching outside ranking data
+requests>=2.31.0
+# Reads the .env file so credentials never live in the code
+python-dotenv>=1.0.0

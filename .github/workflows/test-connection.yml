@@ -1,0 +1,67 @@
+# ---------------------------------------------------------------------------
+# ESPN CONNECTION TEST
+#
+# What this is: a button in your browser that checks whether your ESPN
+# cookies still work. Run it before your draft, and any time a tool fails.
+#
+# How to run it:
+#   1. Go to the "Actions" tab at the top of this repository on GitHub.
+#   2. Click "1. Test ESPN Connection" in the left sidebar.
+#   3. Click the grey "Run workflow" button on the right, then the green
+#      "Run workflow" button in the little popup.
+#   4. Wait about 40 seconds, refresh, and click into the run to read it.
+#
+# No terminal involved at any point.
+# ---------------------------------------------------------------------------
+name: 1. Test ESPN Connection
+
+on:
+  workflow_dispatch:
+    inputs:
+      season_year:
+        description: "Season year (leave as-is unless testing an old season)"
+        required: false
+        default: "2026"
+      team_name:
+        description: "Optional: your exact ESPN team name, only if auto-detect fails"
+        required: false
+        default: ""
+
+concurrency:
+  group: espn-connection-test
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run the connection test
+        env:
+          LEAGUE_ID: ${{ secrets.LEAGUE_ID }}
+          ESPN_S2: ${{ secrets.ESPN_S2 }}
+          SWID: ${{ secrets.SWID }}
+          SEASON_YEAR: ${{ inputs.season_year }}
+          TEAM_NAME: ${{ inputs.team_name }}
+        run: python scripts/test_connection.py
+
+      - name: Save the report as a downloadable file
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: connection-test-report
+          path: output/*.md
+          if-no-files-found: ignore

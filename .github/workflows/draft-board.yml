@@ -1,0 +1,79 @@
+# ---------------------------------------------------------------------------
+# LIVE DRAFT BOARD
+#
+# What this is: your draft-day sidekick. Every time you click "Run workflow"
+# it re-checks who has been drafted and shows you the best players left.
+#
+# How to use it during your draft:
+#   1. Open the "Actions" tab of this repo in a browser tab and leave it open.
+#   2. Click "2. Draft Board (run this during your draft)".
+#   3. Click "Run workflow" -> "Run workflow". Takes roughly 40 seconds.
+#   4. Click into the run. The board appears on the run's summary page.
+#   5. Repeat whenever you want a refresh. Clicking it again cancels any run
+#      still in progress, so you always get current data.
+#
+# Tip: keep the previous run's summary open in a second tab so you always
+# have a list on screen while the new one builds.
+# ---------------------------------------------------------------------------
+name: 2. Draft Board (run this during your draft)
+
+on:
+  workflow_dispatch:
+    inputs:
+      season_year:
+        description: "Season year"
+        required: false
+        default: "2026"
+      team_name:
+        description: "Optional: your exact ESPN team name, only if auto-detect fails"
+        required: false
+        default: ""
+
+concurrency:
+  group: draft-board
+  cancel-in-progress: true
+
+jobs:
+  board:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Keeps the last successful rankings download around between runs, so
+      # if the rankings site goes down mid-draft we still have real data.
+      - name: Restore cached rankings
+        uses: actions/cache@v4
+        with:
+          path: data/rankings_cache.json
+          key: rankings-${{ github.run_id }}
+          restore-keys: |
+            rankings-
+
+      - name: Build the draft board
+        env:
+          LEAGUE_ID: ${{ secrets.LEAGUE_ID }}
+          ESPN_S2: ${{ secrets.ESPN_S2 }}
+          SWID: ${{ secrets.SWID }}
+          SEASON_YEAR: ${{ inputs.season_year }}
+          TEAM_NAME: ${{ inputs.team_name }}
+        run: python scripts/draft_board.py
+
+      - name: Save the board as a downloadable file
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: draft-board
+          path: output/*.md
+          if-no-files-found: ignore
