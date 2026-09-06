@@ -1,0 +1,5 @@
+{
+ "generated_at": "2026-09-06T17:34:31+00:00",
+ "ok": false,
+ "error": "Missing required setting: ESPN_S2\n\n  If you are running this on your own computer, open the file '.env' in the project folder and set ESPN_S2.\n  If this is running in GitHub Actions, add ESPN_S2 as a repository Secret under Settings -> Secrets and variables -> Actions.\n\n  The README section 'Getting your ESPN cookies' has step by step instructions with no terminal required."
+}
