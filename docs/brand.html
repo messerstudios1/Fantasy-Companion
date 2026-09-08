@@ -5,7 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark light">
 <title>Fantasy Companion — Brand</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20width%3D%2232%22%20height%3D%2232%22%20role%3D%22img%22%20aria-label%3D%22Fantasy%20Companion%22%3E%20%3Cg%20transform%3D%22rotate%28-8%2016%2016%29%22%3E%20%3Crect%20x%3D%224%22%20y%3D%226.6%22%20width%3D%2224%22%20height%3D%225.2%22%20rx%3D%222.6%22%20fill%3D%22%23FF5A36%22%2F%3E%20%3Crect%20x%3D%224%22%20y%3D%2214.4%22%20width%3D%2217%22%20height%3D%225.2%22%20rx%3D%222.6%22%20fill%3D%22%23E9EEF2%22%20opacity%3D%22.82%22%2F%3E%20%3Crect%20x%3D%224%22%20y%3D%2222.2%22%20width%3D%2210%22%20height%3D%225.2%22%20rx%3D%222.6%22%20fill%3D%22%23E9EEF2%22%20opacity%3D%22.42%22%2F%3E%20%3C%2Fg%3E%20%3C%2Fsvg%3E">
+<link rel="icon" href="favicon.ico?v=2" sizes="32x32">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=2">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=2">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
+<link rel="manifest" href="site.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Companion">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0C0D10">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F7F8FA">
 <link rel="stylesheet" href="brand/tokens.css">
 <style>
 * { box-sizing: border-box; }
@@ -232,6 +239,23 @@ footer a { color: var(--muted); }
       </div>
     </div>
 
+    <h3>The small-size variant</h3>
+    <p class="muted">Below about 32px the display mark stops working: the third bar sits
+      at 42% opacity and simply dissolves into the background, and the padding eats the
+      little space there is. <code>favicon.svg</code> and <code>favicon.ico</code> therefore
+      use an optically adjusted cut, with less padding, thicker bars, and the lower two
+      lifted to 92% and 62%. Same three shapes, same 8° lean, tuned to survive a browser tab.</p>
+    <div class="grid g2">
+      <div class="panel" style="display:grid;place-items:center;gap:10px">
+        <svg width="112" height="112" viewBox="0 0 32 32" style="color:var(--text)"><g transform="rotate(-8 16 16)"><rect x="4" y="6.6" width="24" height="5.2" rx="2.6" fill="#FF5A36"/><rect x="4" y="14.4" width="17" height="5.2" rx="2.6" fill="currentColor" opacity=".82"/><rect x="4" y="22.2" width="10" height="5.2" rx="2.6" fill="currentColor" opacity=".42"/></g></svg>
+        <span class="muted" style="font-size:12px">Display, 32px and up</span>
+      </div>
+      <div class="panel" style="display:grid;place-items:center;gap:10px">
+        <svg width="112" height="112" viewBox="0 0 32 32" style="color:var(--text)"><g transform="rotate(-8 16 16)"><rect x="2.5" y="5" width="27" height="6" rx="3" fill="#FF5A36"/><rect x="2.5" y="13" width="19" height="6" rx="3" fill="currentColor" opacity=".92"/><rect x="2.5" y="21" width="11" height="6" rx="3" fill="currentColor" opacity=".62"/></g></svg>
+        <span class="muted" style="font-size:12px">Small, favicons and tabs</span>
+      </div>
+    </div>
+
     <h3>Clear space</h3>
     <p class="muted">Keep one bar-height clear on every side. That is 5.2 units on the
       32-unit grid, so roughly 16% of the mark's width. Nothing crops into it.</p>
@@ -349,6 +373,8 @@ footer a { color: var(--muted); }
       <a href="brand/mark-mono.svg" download><span class="fn">mark-mono.svg</span><span class="ds">Single colour</span></a>
       <a href="brand/logo.svg" download><span class="fn">logo.svg</span><span class="ds">Horizontal lockup</span></a>
       <a href="brand/tokens.css" download><span class="fn">tokens.css</span><span class="ds">Every token, the source of truth</span></a>
+      <a href="favicon.svg" download><span class="fn">favicon.svg</span><span class="ds">Small-size optical variant</span></a>
+      <a href="apple-touch-icon.png" download><span class="fn">apple-touch-icon.png</span><span class="ds">180px, opaque ground for iOS</span></a>
     </div>
   </section>
 
