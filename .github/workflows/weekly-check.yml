@@ -1,27 +1,26 @@
 # ---------------------------------------------------------------------------
 # WEEKLY CHECK: lineup optimizer + waiver wire scanner
 #
-# This is the hands-off one. It runs on a schedule with nobody watching, and
-# opens a GitHub Issue with the results so you get an email about it.
+# The hands-off schedule is currently OFF. It ran twice (Sun 9/6, Tue 9/8),
+# failed both times because ESPN_S2 / SWID were never added as repository
+# Secrets, and opened a "FAILED" issue each time. Turned off here to stop
+# that from repeating indefinitely.
 #
-# SCHEDULE (times are UTC, which is how GitHub works)
-#   Sunday 15:00 UTC  = 11am US Eastern / 8am Pacific, before the early games
-#   Tuesday 14:00 UTC = 10am US Eastern / 7am Pacific, after Monday night
+# TO TURN IT BACK ON: add the two secrets (Settings -> Secrets and variables
+# -> Actions), then uncomment the "schedule:" block below.
 #
-# IMPORTANT: GitHub's scheduler does NOT adjust for daylight saving time.
-# These will shift by an hour relative to your clock in early November. If
-# that matters, edit the numbers below. Also note that GitHub delays
-# scheduled runs when their servers are busy, sometimes by 30+ minutes, so
-# do not rely on this to the minute.
+#   schedule:
+#     - cron: "0 15 * * 0"   # Sundays 15:00 UTC, before the early games
+#     - cron: "0 14 * * 2"   # Tuesdays 14:00 UTC, before waivers process
 #
-# You can also run it any time from the Actions tab.
+# GitHub's scheduler does not adjust for daylight saving, and delays runs
+# when busy, sometimes by 30+ minutes.
+#
+# Until then, run it any time from the Actions tab.
 # ---------------------------------------------------------------------------
 name: 3. Weekly Check (lineup + waivers)
 
 on:
-  schedule:
-    - cron: "0 15 * * 0"   # Sundays, before games
-    - cron: "0 14 * * 2"   # Tuesdays, before waivers process
   workflow_dispatch:
     inputs:
       season_year:

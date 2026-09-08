@@ -1,20 +1,20 @@
 # ---------------------------------------------------------------------------
 # LIVE DRAFT AUTO-REFRESH
 #
-# Refreshes the draft board every 5 minutes so the dashboard updates without
-# you tapping anything. Meant to be switched on for one evening only.
+# The 5-minute schedule is currently OFF. It was firing (throttled to roughly
+# every 5-8 hours by GitHub) and skipping every time since DRAFT_MODE was
+# never turned on, so it never actually refreshed anything. Draft night has
+# passed, so the schedule is removed rather than left spinning idle.
 #
-# HOW TO SWITCH IT ON (about 20 seconds, in a browser)
-#   1. Repository Settings > Secrets and variables > Actions
-#   2. Click the "Variables" tab (NOT Secrets)
-#   3. New repository variable
-#        Name:  DRAFT_MODE
-#        Value: on
-#   4. Save. It starts refreshing within a few minutes.
+# TO USE THIS NEXT SEASON:
+#   1. Uncomment the "schedule:" block below and push.
+#   2. Repository Settings > Secrets and variables > Actions > Variables tab
+#      > New repository variable: DRAFT_MODE = on
+#   3. After the draft, delete the DRAFT_MODE variable again, or the workflow
+#      keeps committing to your history all season.
 #
-# HOW TO SWITCH IT OFF (do this after your draft)
-#   Same page, edit DRAFT_MODE to anything other than "on", or delete it.
-#   Leaving it on for a whole season would spam your commit history.
+#   schedule:
+#     - cron: "*/5 * * * *"
 #
 # HONEST CAVEAT: GitHub throttles 5 minute schedules harder than any other
 # interval, and delays them further when their servers are busy. Expect a
@@ -25,8 +25,6 @@
 name: 5. Live draft auto-refresh (draft night only)
 
 on:
-  schedule:
-    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 permissions:
